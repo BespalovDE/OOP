@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 			std::cout << "File not exists!";
 			return 1;
 		}
-		if (searchText.length() < 1)
+		if (searchText.empty())
 		{
 			std::cout << "Empty text to find!";
 			return 1;
