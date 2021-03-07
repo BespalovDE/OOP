@@ -6,16 +6,16 @@
 #include <filesystem>
 
 
-void searchTextFunc(std::ifstream &file, std::string &searchText, int &numberOfFind)
+bool SearchTextFunc(std::istream &file, const std::string &searchText)
 {
+	bool isFind = false;
 	std::string line = "";
 	int rowNumber = 1;
 	while (getline(file, line))
 	{
-		size_t found = line.find(searchText);
-		if (found != std::string::npos)
+		if (line.find(searchText) != std::string::npos)
 		{
-			if (numberOfFind == 0)
+			if (!isFind)
 			{
 				std::cout << "Text found! Rows: " + std::to_string(rowNumber);
 			}
@@ -23,10 +23,26 @@ void searchTextFunc(std::ifstream &file, std::string &searchText, int &numberOfF
 			{
 				std::cout << ", " + std::to_string(rowNumber);
 			}
-			numberOfFind++;
+			isFind = true;
 		}
 		rowNumber++;
 	}
+	return isFind;
+}
+
+bool CheckOptions(std::istream &file, std::string &searchText) // не выводить сообщения в функциях
+{
+	if (!file.is_open())
+	{
+		std::cout << "File not exists!";
+		return false;
+	}
+	if (searchText.empty())
+	{
+		std::cout << "Empty text to find!";
+		return false;
+	}
+	return true;
 }
 
 int main(int argc, char* argv[])
@@ -36,30 +52,18 @@ int main(int argc, char* argv[])
 		std::cout << "Not correct parametres!";
 		return 1;
 	}
-	else
+	std::string searchText = argv[2];
+	std::istream file(argv[1]); // поменяли ifstream
+	if (!CheckOptions(file, searchText))
 	{
-		std::string fileName = argv[1];
-		std::string searchText = argv[2];
-		std::ifstream file(fileName.c_str());
-		if (!file.is_open())
-		{
-			std::cout << "File not exists!";
-			return 1;
-		}
-		if (searchText.empty())
-		{
-			std::cout << "Empty text to find!";
-			return 1;
-		}
-		int numberOfFind = 0;
-		searchTextFunc(file, searchText, numberOfFind);
-		if (numberOfFind == 0)
-		{
-			std::cout << "Text not found!";
-			return 1;
-		}
-		return 0;
+		return 1;
 	}
+	if (!SearchTextFunc(file, searchText))
+	{
+		std::cout << "Text not found!";
+		return 1;
+	}
+	return 0;
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"

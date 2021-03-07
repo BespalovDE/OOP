@@ -3,10 +3,17 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <exception>
 
-bool isCorrectNumber(const int &number)
+unsigned char reverseByte(unsigned char b)
+{ // 1 - &   2 - >>   3 - |                                         00000110 = 6
+    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4; // 11110000 00001111     01100000
+    b = (b & 0xCC) >> 2 | (b & 0x33) << 2; // 11001100 00110011     10010000
+    b = (b & 0xAA) >> 1 | (b & 0x55) << 1; // 10101010 01010101     01100000 = 96
+    return b;
+}
+
+bool isCorrectNumber(int number)
 {
     if (number < 0 || number > 255)
     {
@@ -15,34 +22,11 @@ bool isCorrectNumber(const int &number)
     return true;
 }
 
-void intToBitView(int number, std::vector<size_t> &v)
-{
-    int i = 7;
-    while (number > 0)
-    {
-        v[i] = number % 2;
-        number = number / 2;
-        i--;
-    }
-}
-
-void bitViewToInt(int& number, std::vector<size_t>& v)
-{
-    number = 0;
-    int multiplier = 128;
-    for (int i = 0; i < 8; i++)
-    {
-        if (v[i] > 0)
-        {
-            number += multiplier;
-        }
-        multiplier = multiplier / 2;
-    }
-}
-
 int main(int argc, char* argv[])
 {
     std::string value;
+    // с коммандной строки
+    // вывести всё в функцию проверки что это бит
     std::cout << "Enter a number from 0 to 255" << std::endl;
     getline(std::cin, value);
     if (value.empty())
@@ -60,18 +44,15 @@ int main(int argc, char* argv[])
         std::cout << "It's not a number!" /*error.what()*/ << std::endl;
         return 1;
     }
-    if (!isCorrectNumber(number))
+    if (!isCorrectNumber(number)) // IsByte - переименовать
     {
         std::cout << "Not correct number!" << std::endl;
         return 1;
     }
-    std::vector<size_t> v = { 0, 0, 0, 0, 0, 0, 0, 0 }; // 8
-    intToBitView(number, v);
-    std::reverse(v.begin(), v.end());
-    bitViewToInt(number, v);
-    std::cout << number << std::endl;
+    unsigned char b = (unsigned char)number;
+    b = reverseByte(b);
+    std::cout << (int)b << std::endl;
     return 0;
-
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
