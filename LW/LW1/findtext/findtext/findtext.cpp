@@ -5,6 +5,11 @@
 #include <fstream>
 #include <filesystem>
 
+void showMessage(std::string message)
+{
+	std::cout << message;
+}
+
 
 bool SearchTextFunc(std::istream &file, const std::string &searchText)
 {
@@ -17,11 +22,11 @@ bool SearchTextFunc(std::istream &file, const std::string &searchText)
 		{
 			if (!isFind)
 			{
-				std::cout << "Text found! Rows: " + std::to_string(rowNumber);
+				showMessage("Text found! Rows: " + std::to_string(rowNumber));
 			}
 			else
 			{
-				std::cout << ", " + std::to_string(rowNumber);
+				showMessage(", " + std::to_string(rowNumber));
 			}
 			isFind = true;
 		}
@@ -30,16 +35,16 @@ bool SearchTextFunc(std::istream &file, const std::string &searchText)
 	return isFind;
 }
 
-bool CheckOptions(std::istream &file, std::string &searchText) // не выводить сообщения в функциях
+bool CheckOptions(std::ifstream &file, std::string &searchText) // не выводить сообщения в функциях
 {
 	if (!file.is_open())
 	{
-		std::cout << "File not exists!";
+		showMessage("File not exists!");
 		return false;
 	}
 	if (searchText.empty())
 	{
-		std::cout << "Empty text to find!";
+		showMessage("Empty text to find!");
 		return false;
 	}
 	return true;
@@ -49,18 +54,18 @@ int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Not correct parametres!";
+		showMessage("Not correct parametres!");
 		return 1;
 	}
 	std::string searchText = argv[2];
-	std::istream file(argv[1]); // поменяли ifstream
+	std::ifstream file(argv[1]);
 	if (!CheckOptions(file, searchText))
 	{
 		return 1;
 	}
 	if (!SearchTextFunc(file, searchText))
 	{
-		std::cout << "Text not found!";
+		showMessage("Text not found!");
 		return 1;
 	}
 	return 0;

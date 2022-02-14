@@ -19,8 +19,8 @@ fc.exe %OUT% "%~dp0notanumber.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK3
 
-%program% < "%~dp0F9 A.txt" >%OUT%
-fc.exe %OUT% "%~dp0notanumber.txt" >nul
+%program% < "%~dp0300.txt" >%OUT%
+fc.exe %OUT% "%~dp0notabyte.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK4
 

@@ -13,7 +13,7 @@ unsigned char reverseByte(unsigned char b)
     return b;
 }
 
-bool isCorrectNumber(int number)
+bool isByteNumber(int number)
 {
     if (number < 0 || number > 255)
     {
@@ -22,31 +22,51 @@ bool isCorrectNumber(int number)
     return true;
 }
 
-int main(int argc, char* argv[])
+void showMessage(std::string message)
+{
+    std::cout << message << std::endl;
+}
+
+void getValue(std::string& value)
+{
+    showMessage("Enter a number from 0 to 255");
+    getline(std::cin, value);
+}
+
+bool getByte(int& number, std::string& errorMessage)
 {
     std::string value;
-    // с коммандной строки
-    // вывести всё в функцию проверки что это бит
-    std::cout << "Enter a number from 0 to 255" << std::endl;
-    getline(std::cin, value);
-    if (value.empty())
+    getValue(value);
+    if (value.empty() || value == "")
     {
-        std::cout << "Not correct value!" << std::endl;
+        errorMessage = "Not correct value!";
         return 1;
     }
-    int number = 0;
     try
     {
         number = stoi(value);
     }
     catch (const std::exception& error)
     {
-        std::cout << "It's not a number!" /*error.what()*/ << std::endl;
+        errorMessage = "It's not a number format of data!";
         return 1;
     }
-    if (!isCorrectNumber(number)) // IsByte - переименовать
+    if (!isByteNumber(number))
     {
-        std::cout << "Not correct number!" << std::endl;
+        errorMessage = "Is not a Byte!";
+        return 1;
+    }
+    return 0;
+}
+
+
+int main(int argc, char* argv[])
+{
+    int number = 0;
+    std::string errorMessage = "";
+    if (getByte(number, errorMessage))
+    {
+        showMessage(errorMessage);
         return 1;
     }
     unsigned char b = (unsigned char)number;

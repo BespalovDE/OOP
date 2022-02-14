@@ -1,2 +1,2 @@
 Enter a number from 0 to 255
-It's not a number!
+It's not a number format of data!
