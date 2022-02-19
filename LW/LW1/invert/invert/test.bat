@@ -25,7 +25,7 @@ IF ERRORLEVEL 1 goto :testFailed
 echo OK4
 
 %program% "%~dp0matrix2.txt" >%OUT%
-fc.exe %OUT% "%~dp0Determinant0.txt" >nul
+fc.exe %OUT% "%~dp0ExprMatrix.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK5
 

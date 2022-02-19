@@ -1,10 +1,9 @@
-﻿// invert.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+﻿// invert.cpp
 
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <filesystem>
+#include <sstream>
 
 
 using namespace std;
@@ -29,33 +28,26 @@ bool GetMatrix(ifstream &inputFile, Matrix3x3& mat)
 {
 	int x = 0;
 	int y = 0;
-	string line1;
-	int allPositions = 0;
+	string inputLine;
+	int allMtrixPositions = 0;
 	try
 	{
-		while (getline(inputFile, line1))
+		while (getline(inputFile, inputLine))
 		{
-			int iLen = 0;
-			string number = "";
-			while (line1.length() > iLen)
+			istringstream strm(inputLine);
+			for (int x = 0; x < 3; x++)
 			{
-				if (line1[iLen] != ' ' && line1[iLen] != '	')
+				string inputValue = "";
+				strm >> inputValue;
+				if (inputValue != "")
 				{
-					number += line1[iLen];
+					mat[x][y] = std::stod(inputValue);
+					allMtrixPositions++;
 				}
-				if (line1[iLen] == ' ' || line1[iLen] == '	' || line1.length() == iLen + 1)
-				{
-					mat[x][y] = stod(number);
-					number = "";
-					allPositions++;
-					x++;
-				}
-				iLen++;
 			}
-			x = 0;
 			y++;
 		}
-		if (allPositions == 9)
+		if (allMtrixPositions == 9)
 		{
 			return true;
 		}
@@ -104,7 +96,7 @@ void GetMinorMatrix(const Matrix3x3 &m, Matrix3x3 &minorMatrix)
 	}
 }
 
-void GetAlgAdditionsMatrix(Matrix3x3& algMatrix)
+void GetAlgAdditionsToMinorMatrixElements(Matrix3x3& algMatrix)
 {
 	for (int y = 0; y < 3; y++)
 	{
@@ -120,34 +112,27 @@ void GetAlgAdditionsMatrix(Matrix3x3& algMatrix)
 
 void TranspMatrix(Matrix3x3& tranMatrix)
 {
-	Matrix3x3 tranMatrixNew;
 	for (int y = 0; y < 3; y++)
 	{
 		for (int x = 0; x < 3; x++)
 		{
-			tranMatrixNew[y][x] = tranMatrix[x][y];
-		}
-	}
-	for (int y = 0; y < 3; y++)
-	{
-		for (int x = 0; x < 3; x++)
-		{
-			tranMatrix[x][y] = tranMatrixNew[x][y];
+			if (x > y)
+			    swap(tranMatrix[y][x], tranMatrix[x][y]);
 		}
 	}
 }
 
-void GetRevertMatrix(Matrix3x3& resultMat, const Matrix3x3& mat, double determinant)
-{
-	determinant = 1 / determinant;
-	for (int y = 0; y < 3; y++)
-	{
-		for (int x = 0; x < 3; x++)
-		{
-			resultMat[x][y] = mat[x][y] * determinant;
-		}
-	}
-}
+//void GetRevert(Matrix3x3& resultMat, const Matrix3x3& mat, double determinant)
+//{
+//	determinant = 1 / determinant;
+//	for (int y = 0; y < 3; y++)
+//	{
+//		for (int x = 0; x < 3; x++)
+//		{
+//			resultMat[x][y] = mat[x][y] * determinant;
+//		}
+//	}
+//}
 
 double GetDeterminant3x3(const Matrix3x3& m)
 {
@@ -163,11 +148,18 @@ bool RevertMatrix(Matrix3x3& mat)
 	{
 		return false;
 	}
-	Matrix3x3 matrix;
-	GetMinorMatrix(mat, matrix);
-	GetAlgAdditionsMatrix(matrix);
-	TranspMatrix(matrix);
-	GetRevertMatrix(mat, matrix, determinant);
+	Matrix3x3 minorMatrix;
+	GetMinorMatrix(mat, minorMatrix);
+	GetAlgAdditionsToMinorMatrixElements(minorMatrix);
+	TranspMatrix(minorMatrix);
+	determinant = 1 / determinant;
+	for (int y = 0; y < 3; y++)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			mat[x][y] = minorMatrix[x][y] * determinant;
+		}
+	}
 	return true;
 }
 
@@ -192,19 +184,8 @@ int main(int argc, char* argv[])
 	}
 	if (!RevertMatrix(inputMat))
 	{
-		std::cout << "Determinant = 0!" << endl;
+		std::cout << "The matrix is expressed!" << endl;
 		return 1;
 	}
 	ShowMatrix(inputMat);
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
