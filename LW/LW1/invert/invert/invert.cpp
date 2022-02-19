@@ -144,7 +144,7 @@ double GetDeterminant3x3(const Matrix3x3& m)
 bool RevertMatrix(Matrix3x3& mat)
 {
 	double determinant = GetDeterminant3x3(mat);
-	if (determinant == 0)
+	if (abs(determinant) < DBL_EPSILON)
 	{
 		return false;
 	}
