@@ -29,7 +29,7 @@ bool GetMatrix(ifstream &inputFile, Matrix3x3& mat)
 	int x = 0;
 	int y = 0;
 	string inputLine;
-	int allMtrixPositions = 0;
+	int allMatrixPositions = 0;
 	try
 	{
 		while (getline(inputFile, inputLine))
@@ -42,12 +42,12 @@ bool GetMatrix(ifstream &inputFile, Matrix3x3& mat)
 				if (inputValue != "")
 				{
 					mat[x][y] = std::stod(inputValue);
-					allMtrixPositions++;
+					allMatrixPositions++;
 				}
 			}
 			y++;
 		}
-		if (allMtrixPositions == 9)
+		if (allMatrixPositions == 9)
 		{
 			return true;
 		}
