@@ -1,4 +1,6 @@
-﻿// invert.cpp
+﻿// invert.cpp 0.6
+//Приложение invert.exe, выполняющее инвертирование матрицы 3*3, т.е. нахождение обратной матрицы  и выводящее коэффициенты 
+//результирующей матрицы в стандартный поток вывода. 
 
 #include <iostream>
 #include <string>
@@ -24,6 +26,7 @@ void ShowMatrix(const Matrix3x3& mat)
 	}
 }
 
+//3. Разобраться с автоформатированием
 bool GetMatrix(ifstream &inputFile, Matrix3x3& mat)
 {
 	int x = 0;
@@ -56,7 +59,7 @@ bool GetMatrix(ifstream &inputFile, Matrix3x3& mat)
 			return false;
 		}
 	}
-	catch (const exception& error)
+	catch (const exception& /* error*/)
 	{
 		return false;
 	}
@@ -85,6 +88,7 @@ double GetMinor(const Matrix3x3& inputMat, int x, int y)
 	return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1];
 }
 
+//назнвания переменных могут запутать
 void GetMinorMatrix(const Matrix3x3 &m, Matrix3x3 &minorMatrix)
 {
 	for (int y = 0; y < 3; y++)
@@ -122,18 +126,7 @@ void TranspMatrix(Matrix3x3& tranMatrix)
 	}
 }
 
-//void GetRevert(Matrix3x3& resultMat, const Matrix3x3& mat, double determinant)
-//{
-//	determinant = 1 / determinant;
-//	for (int y = 0; y < 3; y++)
-//	{
-//		for (int x = 0; x < 3; x++)
-//		{
-//			resultMat[x][y] = mat[x][y] * determinant;
-//		}
-//	}
-//}
-
+//Форматирование и название переменных
 double GetDeterminant3x3(const Matrix3x3& m)
 {
 	double determinantPlus = m[0][0] * m[1][1] * m[2][2] + m[0][2] * m[1][0] * m[2][1] + m[0][1] * m[1][2] * m[2][0];
@@ -148,10 +141,13 @@ bool RevertMatrix(Matrix3x3& mat)
 	{
 		return false;
 	}
+
 	Matrix3x3 minorMatrix;
 	GetMinorMatrix(mat, minorMatrix);
 	GetAlgAdditionsToMinorMatrixElements(minorMatrix);
 	TranspMatrix(minorMatrix);
+
+	//4. Возможно переменная должна называться обратный детерменант
 	determinant = 1 / determinant;
 	for (int y = 0; y < 3; y++)
 	{
@@ -166,6 +162,9 @@ bool RevertMatrix(Matrix3x3& mat)
 int main(int argc, char* argv[])
 {
 	Matrix3x3 inputMat;
+
+	//1. Подумать, как можно вынести лоику из функции main,
+	// чтобы в main осталось только вызов методов
 	if (argc != 2)
 	{
 		std::cout << "Not correct parametres!" << endl;
@@ -174,6 +173,7 @@ int main(int argc, char* argv[])
 	ifstream inputFile(argv[1]);
 	if (!inputFile.is_open())
 	{
+		// Лучше сделать однообразно
 		cout << "Failed to open file for reading!" << endl;
 		return 1;
 	}

@@ -1,16 +1,15 @@
-﻿// fill.cpp
-// "$(ProjectDir)test.bat" "$(TargetPath)"
+﻿// fill.cpp баллы 0.6
+//Приложение fill.exe, выполняющее заливку контуров, заданных в текстовом файле начиная с указанных начальных точек (O).
 
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <stack> 
 #include <queue>
 
 using namespace std;
-const int maxWidth = 100;
-const int maxHeight = 100;
+const int MAX_WIDTH = 100;
+const int MAX_HEIGHT = 100;
 
 typedef char FieldMas[100][100];
 
@@ -20,18 +19,18 @@ struct Point
 	int width = 0;
 };
 
-bool GetInputData(ifstream &inputFile, stack <Point> &startPoints, FieldMas &fieldMas)
+bool GetInputField(ifstream &inputFile, queue <Point> &startPoints, FieldMas &fieldMas)
 {
 	string inputLine;
 	bool existsString = true;
-	for (int stringsCount = 0; stringsCount < maxHeight; stringsCount++)
+	for (int stringsCount = 0; stringsCount < MAX_HEIGHT; stringsCount++)
 	{
 		if (existsString)
 		{
 			if (!getline(inputFile, inputLine))
 				existsString = false;
 		}
-		for (int i = 0; i < maxWidth; i++)
+		for (int i = 0; i < MAX_WIDTH; i++)
 		{
 			char inputChar = ' ';
 			if (existsString)
@@ -48,98 +47,70 @@ bool GetInputData(ifstream &inputFile, stack <Point> &startPoints, FieldMas &fie
 						startPoints.push({ stringsCount, i });
 						break;
 					default:
-						return 1;
+						return false;
 					}
 				}
 			}
 			fieldMas[stringsCount][i] = inputChar;
 		}
 	}
-	return 0;
+	return true;
 }
 
-void SetTopPoint(queue <Point>& tempPoints, FieldMas& fieldMas, Point point)
+bool CheckPointByFieldLimits(const Point &point)
 {
-	if (point.height > 0 && fieldMas[point.height - 1][point.width] == ' ')
+	if (point.height < 0 || point.height >= MAX_HEIGHT)
+		return false;
+	if (point.width < 0 || point.width >= MAX_WIDTH)
+		return false;
+	return true;
+}
+
+void SetPoint(queue <Point>& queuePoints, FieldMas& fieldMas, Point point)
+{
+	if (CheckPointByFieldLimits(point) && fieldMas[point.height][point.width] == ' ')
 	{
-		fieldMas[point.height - 1][point.width] = '.';
-		tempPoints.push({ point.height - 1, point.width });
+		fieldMas[point.height][point.width] = '.';
+		queuePoints.push({ point.height, point.width });
 	}
 }
 
-void SetBotPoint(queue <Point>& tempPoints, FieldMas& fieldMas, Point point)
+void SetPointsAround(queue <Point> &queuePoints, FieldMas& fieldMas, Point point)
 {
-	if (point.height < maxHeight - 1 && fieldMas[point.height + 1][point.width] == ' ')
-	{
-		fieldMas[point.height + 1][point.width] = '.';
-		tempPoints.push({ point.height + 1, point.width });
-	}
+	SetPoint(queuePoints, fieldMas, { point.height - 1, point.width });
+	SetPoint(queuePoints, fieldMas, { point.height, point.width - 1 });
+	SetPoint(queuePoints, fieldMas, { point.height + 1, point.width });
+	SetPoint(queuePoints, fieldMas, { point.height, point.width + 1 });
 }
 
-void SetLeftPoint(queue <Point>& tempPoints, FieldMas& fieldMas, Point point)
-{
-	if (point.width > 0 && fieldMas[point.height][point.width - 1] == ' ')
-	{
-		fieldMas[point.height][point.width - 1] = '.';
-		tempPoints.push({ point.height, point.width - 1 });
-	}
-}
-
-void SetRightPoint(queue <Point>& tempPoints, FieldMas& fieldMas, Point point)
-{
-	if (point.width < maxWidth - 1 && fieldMas[point.height][point.width + 1] == ' ')
-	{
-		fieldMas[point.height][point.width + 1] = '.';
-		tempPoints.push({ point.height, point.width + 1 });
-	}
-}
-
-void SetPointsAround(queue <Point> &tempPoints, FieldMas& fieldMas, Point point)
-{
-	SetTopPoint(tempPoints, fieldMas, point);
-	SetBotPoint(tempPoints, fieldMas, point);
-	SetLeftPoint(tempPoints, fieldMas, point);
-	SetRightPoint(tempPoints, fieldMas, point);
-}
-
-void Fill(stack <Point>& startPoints, FieldMas& fieldMas)
+void Fill(queue <Point>& startPoints, FieldMas& fieldMas)
 {
 	while (!startPoints.empty())
 	{
-		queue <Point> tempPoints;
-		Point startPoint = startPoints.top();
+		queue <Point> queuePoints;
+		Point startPoint = startPoints.front();
 		startPoints.pop();
-		SetPointsAround(tempPoints, fieldMas, startPoint);
-		while (!tempPoints.empty())
+		SetPointsAround(queuePoints, fieldMas, startPoint);
+		while (!queuePoints.empty())
 		{
-			startPoint = tempPoints.front();
-			tempPoints.pop();
-			SetPointsAround(tempPoints, fieldMas, startPoint);
+			startPoint = queuePoints.front();
+			queuePoints.pop();
+			SetPointsAround(queuePoints, fieldMas, startPoint);
 		}
 	}
 }
 
-void ShowResult(ofstream &outputFile, const FieldMas &fieldMas)
+void PrintField(ofstream &outputFile, const FieldMas &fieldMas)
 {
-	for (int y = 0; y < maxHeight; y++)
+	for (int y = 0; y < MAX_HEIGHT; y++)
 	{
 		if (y > 0)
 			outputFile << '\n';
-		for (int x = 0; x < maxWidth; x++)
+		for (int x = 0; x < MAX_WIDTH; x++)
 		{
 			outputFile << fieldMas[y][x];
 		}
 	}
-}
-
-bool FileIsExist(string filePath)
-{
-	bool isExist = false;
-	ifstream fin(filePath.c_str());
-	if (fin.is_open())
-		isExist = true;
-	fin.close();
-	return isExist;
 }
 
 int main(int argc, char* argv[])
@@ -147,16 +118,6 @@ int main(int argc, char* argv[])
 	if (argc != 3)
 	{
 		std::cout << "Not correct parametres!" << endl;
-		return 1;
-	}
-	if (!FileIsExist(argv[1]))
-	{
-		cout << "Failed to open file for reading!" << endl;
-		return 1;
-	}
-	if (!FileIsExist(argv[2]))
-	{
-		cout << "Failed to open file for writing!" << endl;
 		return 1;
 	}
 	ifstream inputFile(argv[1]);
@@ -171,9 +132,9 @@ int main(int argc, char* argv[])
 		cout << "Failed to open file for writing!" << endl;
 		return 1;
 	}
-	stack <Point> startPoints;
+	queue <Point> startPoints;
 	FieldMas fieldMas;
-	if (GetInputData(inputFile, startPoints, fieldMas))
+	if (!GetInputField(inputFile, startPoints, fieldMas))
 	{
 		cout << "Input file has the not correct symbol!" << endl;
 		return 1;
@@ -182,6 +143,6 @@ int main(int argc, char* argv[])
 	{ 
 		Fill(startPoints, fieldMas);
 	}
-	ShowResult(outputFile, fieldMas);
+	PrintField(outputFile, fieldMas);
 	outputFile.close();
 }

@@ -1,12 +1,21 @@
-﻿// rle.cpp "$(ProjectDir)test.bat" "$(TargetPath)"
-
+﻿// rle.cpp
+//Приложение rle.exe, выполняющее RLE-компрессию бинарных файлов с сильно разреженным содержимым, а также декомпрессию 
+//упакованных ею файлов.
+//"$(ProjectDir)test.bat" "$(TargetPath)"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 
 using namespace std;
-const int maxCount = 255;
+const unsigned char MAX_COUNT = 255;
+
+struct InputParams
+{
+	string actionPar;
+	string inputPath;
+	string outputPath;
+};
 
 bool CompressFile(ifstream &inputFile, ofstream &outputFile)
 {
@@ -18,19 +27,17 @@ bool CompressFile(ifstream &inputFile, ofstream &outputFile)
 			outputFile << endl;
 		firstLine = false;
 		int i = 0;
-		int count = 0;
-		char symbol;
-		char currentSybmol = inputLine[0];
+		unsigned char count = 0;
+		unsigned char symbol;
+		unsigned char currentSybmol = inputLine[0];
 		while (i < inputLine.length())
 		{
 			symbol = inputLine[i];
 			if (isdigit(symbol))
-			{
-				return 1;
-			}
+				return false;
 			if (symbol == currentSybmol)
 			{
-				if (count == maxCount)
+				if (count == MAX_COUNT)
 				{
 					outputFile << count << currentSybmol;
 					count = 0;
@@ -47,7 +54,7 @@ bool CompressFile(ifstream &inputFile, ofstream &outputFile)
 	    }
 		outputFile << count << currentSybmol;
 	}
-	return 0;
+	return true;
 }
 
 bool DecompressFile(ifstream& inputFile, ofstream& outputFile)
@@ -56,35 +63,41 @@ bool DecompressFile(ifstream& inputFile, ofstream& outputFile)
 	bool firstLine = true;
 	while (getline(inputFile, inputLine))
 	{
-		if (inputLine.length() < 2 || isdigit(inputLine[inputLine.length() - 1]) || !isdigit(inputLine[inputLine.length() - 2]))
-			return 1;
+		if (inputLine.length() % 2 != 0)
+			return false;
 		if (!firstLine)
 			outputFile << endl;
 		firstLine = false;
-		int inputNumber = 0;
-		char inputChar = 0;
+		unsigned char inputNumber = 0;
+		unsigned char inputChar = 0;
 		istringstream strm(inputLine);
 		do
 		{
 			inputNumber = 0;
 			inputChar = 0;
 			strm >> inputNumber >> inputChar;
-			if (inputNumber > 255)
-			{
-				return 1;
-			}
 			if (inputNumber > 0 && inputChar > 0)
 			{
-				for (int i = 0; i < inputNumber; i++)
+				for (unsigned char i = 0; i < inputNumber; i++)
 					outputFile << inputChar;
 			}
 		} while (inputNumber > 0 && inputChar > 0);
 		if (inputNumber > 0 || inputChar > 0)
 		{
-			return 1;
+			return false;
 		}
 	}
-	return 0;
+	return true;
+}
+
+bool GetInputPar(char* argv[], InputParams &inputParams)
+{
+	inputParams.actionPar = argv[1];
+	if (inputParams.actionPar != "pack" && inputParams.actionPar != "unpack")
+		return false;
+	inputParams.inputPath = argv[2];
+	inputParams.outputPath = argv[3];
+	return true;
 }
 
 int main(int argc, char* argv[])
@@ -94,14 +107,14 @@ int main(int argc, char* argv[])
 		std::cout << "Not correct parametres!" << endl;
 		return 1;
 	}
-	string packParam = argv[1];
-	if (packParam != "pack" && packParam != "unpack")
+	InputParams inputParams;
+	if (!GetInputPar(argv, inputParams))
 	{
 		std::cout << "Not correct pack parameter!" << endl;
 		return 1;
 	}
-	ifstream inputFile(argv[2]);
-	ofstream outputFile(argv[3]);
+	ifstream inputFile(inputParams.inputPath);
+	ofstream outputFile(inputParams.outputPath);
 	if (!inputFile.is_open())
 	{
 		cout << "Failed to open file for reading!" << endl;
@@ -112,9 +125,9 @@ int main(int argc, char* argv[])
 		cout << "Failed to open file for writing!" << endl;
 		return 1;
 	}
-	if (packParam == "pack" )
+	if (inputParams.actionPar == "pack" )
 	{
-		if (CompressFile(inputFile, outputFile))
+		if (!CompressFile(inputFile, outputFile))
 		{
 			cout << "Input file has a numbers!" << endl;
 			return 1;
@@ -122,7 +135,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		if (DecompressFile(inputFile, outputFile))
+		if (!DecompressFile(inputFile, outputFile))
 		{
 			cout << "Input file has the not correct structure!" << endl;
 		    return 1;
