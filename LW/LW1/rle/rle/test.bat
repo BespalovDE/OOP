@@ -64,6 +64,16 @@ fc.exe "%~dp0test\CONST\MultyStringD.txt" "%~dp0test\OUT\outMultyStringD.txt" >n
 IF ERRORLEVEL 1 goto :testFailed
 echo OK12
 
+%program% "pack" "%~dp0test\IN\inLimits.txt" "%~dp0test\OUT\outLimits.txt" >%OUT%
+fc.exe "%~dp0test\CONST\outLimits.txt" "%~dp0test\OUT\outLimits.txt" >nul
+IF ERRORLEVEL 1 goto :testFailed
+echo OK13
+
+%program% "unpack" "%~dp0test\IN\inLimitsD.txt" "%~dp0test\OUT\outLimitsD.txt" >%OUT%
+fc.exe "%~dp0test\CONST\outLimitsD.txt" "%~dp0test\OUT\outLimitsD.txt" >nul
+IF ERRORLEVEL 1 goto :testFailed
+echo OK14
+
 echo OK
 exit /B
 
