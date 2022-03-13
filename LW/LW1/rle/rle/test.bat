@@ -39,40 +39,35 @@ fc.exe "%~dp0test\CONST\ManyOneSimD.txt" "%~dp0test\OUT\outManyOneSimD.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK7
 
-%program% "pack" "%~dp0test\IN\inputNumber.txt" "%~dp0test\OUT\emptyOut.txt" >%OUT%
-fc.exe %OUT% "%~dp0test\CONST\hasnumber.txt" >nul
+%program% "pack" "%~dp0test\IN\inCorrectRLE1.txt" "%~dp0test\OUT\outCorrectRLE1.txt" >%OUT%
+fc.exe "%~dp0test\OUT\outCorrectRLE1.txt" "%~dp0test\CONST\outCorrectRLE1.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK8
 
-%program% "unpack" "%~dp0test\IN\inNotCorrectRLE1.txt" "%~dp0test\OUT\emptyOut.txt" >%OUT%
-fc.exe %OUT% "%~dp0test\CONST\outNotCorRLE.txt" >nul
+%program% "unpack" "%~dp0test\IN\inCorrectRLE2.txt" "%~dp0test\OUT\outCorrectRLE2.txt" >%OUT%
+fc.exe "%~dp0test\OUT\outCorrectRLE2.txt" "%~dp0test\CONST\outCorrectRLE2.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK9
-
-%program% "unpack" "%~dp0test\IN\inNotCorrectRLE2.txt" "%~dp0test\OUT\emptyOut.txt" >%OUT%
-fc.exe %OUT% "%~dp0test\CONST\outNotCorRLE.txt" >nul
-IF ERRORLEVEL 1 goto :testFailed
-echo OK10
 
 %program% "pack" "%~dp0test\IN\inMultyString.txt" "%~dp0test\OUT\outMultyString.txt" >%OUT%
 fc.exe "%~dp0test\CONST\MultyString.txt" "%~dp0test\OUT\outMultyString.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
-echo OK11
+echo OK10
 
 %program% "unpack" "%~dp0test\IN\inMultyStringD.txt" "%~dp0test\OUT\outMultyStringD.txt" >%OUT%
 fc.exe "%~dp0test\CONST\MultyStringD.txt" "%~dp0test\OUT\outMultyStringD.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
-echo OK12
+echo OK11
 
 %program% "pack" "%~dp0test\IN\inLimits.txt" "%~dp0test\OUT\outLimits.txt" >%OUT%
 fc.exe "%~dp0test\CONST\outLimits.txt" "%~dp0test\OUT\outLimits.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
-echo OK13
+echo OK12
 
 %program% "unpack" "%~dp0test\IN\inLimitsD.txt" "%~dp0test\OUT\outLimitsD.txt" >%OUT%
 fc.exe "%~dp0test\CONST\outLimitsD.txt" "%~dp0test\OUT\outLimitsD.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
-echo OK14
+echo OK13
 
 echo OK
 exit /B

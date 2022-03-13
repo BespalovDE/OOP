@@ -1,0 +1,1 @@
+Enter the text to find and replace: Not correct input string!

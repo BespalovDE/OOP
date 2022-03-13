@@ -1,1 +1,1 @@
-Find some text or not. Need text in file. Some file text.
+Enter the text to find and replace: Find some text or not. Need text in file. Some file text.

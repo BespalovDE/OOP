@@ -1,13 +1,16 @@
 ﻿// FindAndReplace.cpp : Программа, заменяющая все вхождения искомой строки в стандартном потоке ввода на строку-заменитель и выводящая результат в стандартный поток вывода
-//
+//"$(ProjectDir)test.bat" "$(TargetPath)"
 
 #include <iostream>
+#include <sstream>
 
-struct SearchAndReplaceText
+std::string GetInputString()
 {
-	std::string search = "";
-	std::string replace = "";
-};
+	std::string inputString = "";
+	std::cout << "Enter the text to find and replace: ";
+	getline(std::cin, inputString);
+	return inputString;
+}
 
 std::string FindAndReplace(const std::string& subject, const std::string& search, std::string& replace)
 {
@@ -35,8 +38,13 @@ int main(int argc, char* argv[])
 	}
 	std::string search = argv[1];
 	std::string replace = argv[2];
-	std::string subject = "Find some text or not. Need text in file. Some file text.";
+	std::string subject = GetInputString();
+	//std::string subject = "Find some text or not. Need text in file. Some file text.";
+	if (subject.length() < 1)
+	{
+		std::cout << "Not correct input string!" << std::endl;
+		return 1;
+	}
 	subject = FindAndReplace(subject, search, replace);
 	std::cout << subject << std::endl;
 }
-

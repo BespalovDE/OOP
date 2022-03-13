@@ -9,59 +9,45 @@
 #include <algorithm>
 #include <string>
 
-
-struct MaxAndMinVectorNumber
+bool GetVectorData(std::ifstream &inputFile, std::vector<double_t> &inputVector, double &multiplyValue)
 {
-	double minVectorNumber;
-	double maxVectorNumber;
-};
-
-bool GetVectorData(std::ifstream &inputFile, std::vector<double_t> &v, MaxAndMinVectorNumber &VectorNumbers)
-{
-	VectorNumbers.maxVectorNumber = -DBL_MAX;
-	VectorNumbers.minVectorNumber = DBL_MAX;
+	double maxVectorNumber = -DBL_MAX;
+	double minVectorNumber = DBL_MAX;
 	std::string inputLine;
 	while (getline(inputFile, inputLine))
 	{
-		double inputNumber = NULL;
+		double inputNumber;
 		std::istringstream strm(inputLine);
-		do
+		while (strm >> inputNumber)
 		{
-			inputNumber = NULL;
-			try
-			{
-				strm >> inputNumber;
-			}
-			catch (const std::exception& /* error*/)
-			{
-				return false;
-			}
-			if (inputNumber != NULL)
-			{
-				if (VectorNumbers.maxVectorNumber < inputNumber)
-					VectorNumbers.maxVectorNumber = inputNumber;
-				if (VectorNumbers.minVectorNumber > inputNumber)
-					VectorNumbers.minVectorNumber = inputNumber;
-				v.push_back(inputNumber);
-			}
-		} while (inputNumber != NULL);
+				if (maxVectorNumber < inputNumber)
+					maxVectorNumber = inputNumber;
+				if (minVectorNumber > inputNumber)
+					minVectorNumber = inputNumber;
+				inputVector.push_back(inputNumber);
+		}
+		if (abs(minVectorNumber) < DBL_EPSILON)
+		{
+			return false;
+		}
+		try
+		{
+			multiplyValue = maxVectorNumber / minVectorNumber;
+		}
+		catch (const std::exception& /* error*/)
+		{
+			return false;
+		}
 	}
-	if (VectorNumbers.maxVectorNumber == -DBL_MAX && VectorNumbers.minVectorNumber == DBL_MAX)
-		return false;
-	return true;
+	return !(maxVectorNumber == -DBL_MAX && minVectorNumber == DBL_MAX);
 }
 
-void MultiplyVectorValuesOnMaxMinVectorNumbers(std::vector<double_t> &v, const MaxAndMinVectorNumber &VectorNumbers)
+void MultiplyVectorValuesOnNumber(std::vector<double_t> &v, const double Number)
 {
-	for (auto &num : v) {
-
-		num = num * VectorNumbers.maxVectorNumber / VectorNumbers.minVectorNumber;
+	for (auto &num : v)
+	{
+		num = num * Number;
 	}
-}
-
-void SortVector(std::vector<double_t> &v)
-{
-	std::sort(v.begin(), v.end());
 }
 
 void WriteVecror(std::vector<double_t> &v)
@@ -84,15 +70,14 @@ int main(int argc, char* argv[])
 		std::cout << "Failed to open file for reading!" << std::endl;
 		return 1;
 	}
-	std::vector<double_t> v;
-	MaxAndMinVectorNumber maxMinVectorNumbers;
-	if (!GetVectorData(inputFile, v, maxMinVectorNumbers))
+	std::vector<double_t> inputVector;
+	double multiplyValue = 0;
+	if (!GetVectorData(inputFile, inputVector, multiplyValue))
 	{
-		std::cout << "Failed to reading vector!" << std::endl;
+		std::cout << "Failed to reading vector data!" << std::endl;
 		return 1;
 	}
-	MultiplyVectorValuesOnMaxMinVectorNumbers(v, maxMinVectorNumbers);
-	SortVector(v);
-	WriteVecror(v);
+	MultiplyVectorValuesOnNumber(inputVector, multiplyValue);
+	std::sort(inputVector.begin(), inputVector.end());
+	WriteVecror(inputVector);
 }
-

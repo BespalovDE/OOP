@@ -12,6 +12,7 @@ const unsigned char MAX_COUNT = 255;
 
 struct InputParams
 {
+	//1. лучше использовать enum
 	string actionPar;
 	string inputPath;
 	string outputPath;
@@ -24,6 +25,7 @@ bool CompressFile(ifstream &inputFile, ofstream &outputFile)
 	while (getline(inputFile, inputLine))
 	{
 		if (!firstLine)
+			//поищи стандартный аналог getline, только для записи, избавит от лишний проверок
 			outputFile << endl;
 		firstLine = false;
 		int i = 0;
@@ -33,8 +35,7 @@ bool CompressFile(ifstream &inputFile, ofstream &outputFile)
 		while (i < inputLine.length())
 		{
 			symbol = inputLine[i];
-			if (isdigit(symbol))
-				return false;
+			// убрал проверку на цифры
 			if (symbol == currentSybmol)
 			{
 				if (count == MAX_COUNT)
@@ -70,28 +71,33 @@ bool DecompressFile(ifstream& inputFile, ofstream& outputFile)
 		firstLine = false;
 		unsigned char inputNumber = 0;
 		unsigned char inputChar = 0;
-		istringstream strm(inputLine);
-		do
+		int i = 0;
+		while (i < inputLine.length())
 		{
 			inputNumber = 0;
 			inputChar = 0;
-			strm >> inputNumber >> inputChar;
+			inputNumber = inputLine[i]; 
+			inputChar = inputLine[i + 1];
 			if (inputNumber > 0 && inputChar > 0)
 			{
-				for (unsigned char i = 0; i < inputNumber; i++)
+				for (unsigned char j = 0; j < inputNumber; j++)
 					outputFile << inputChar;
 			}
-		} while (inputNumber > 0 && inputChar > 0);
-		if (inputNumber > 0 || inputChar > 0)
-		{
-			return false;
-		}
+			if (inputNumber == 0 || inputChar == 0)
+			{
+				return false;
+			}
+			i += 2;
+		} 
 	}
 	return true;
 }
 
+// Возможно стоит как-то разделить на функции, сейчас трудно читать
+// GetInpPar предполаает что функция вернет InptParams а не bool, это может запутать. Ошибку можно выводить, например, выбрасывая исключение (поисследовать самостоятельно)
 bool GetInputPar(char* argv[], InputParams &inputParams)
 {
+	//2. лучше проверку количества перенести сюда
 	inputParams.actionPar = argv[1];
 	if (inputParams.actionPar != "pack" && inputParams.actionPar != "unpack")
 		return false;

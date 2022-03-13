@@ -14,15 +14,20 @@ fc.exe %OUT% "%~dp0notcorrectpar.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK2
 
-%program% "text" "cat" >%OUT%
-fc.exe %OUT% "%~dp0catResult.txt" >nul
+%program% "text" "cat" < inputEmpty.txt >%OUT%
+fc.exe %OUT% "%~dp0notCorrectInputString.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK3
 
-%program% "Summer" "cat" >%OUT%
-fc.exe %OUT% "%~dp0notFound.txt" >nul
+%program% "text" "cat" < inputText.txt >%OUT%
+fc.exe %OUT% "%~dp0catResult.txt" >nul
 IF ERRORLEVEL 1 goto :testFailed
 echo OK4
+
+%program% "Summer" "cat" < inputText2.txt >%OUT%
+fc.exe %OUT% "%~dp0notFound.txt" >nul
+IF ERRORLEVEL 1 goto :testFailed
+echo OK5
 
 echo OK
 exit /B
