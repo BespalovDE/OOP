@@ -67,6 +67,10 @@ bool IsObsceneWord(const std::set <std::string> &filterSet, const std::string &i
 	return (filterSet.find(inputWord) == filterSet.end()) ? false : true;
 }
 
+//4. стоит разделить, слишком мноо работы для одной функции
+//1 ответственность: Считывает слова из потока
+//2.ответственность: проверяет слова 
+//3.ответственность: выводит результат
 void ProcessingIncomingLine(const std::set <std::string> &filterSet)
 {
 	std::string inputLine = "";
@@ -90,16 +94,19 @@ void ProcessingIncomingLine(const std::set <std::string> &filterSet)
 
 int main(int argc, char* argv[])
 {
+	//3. валидацию луче вынести, тогда ее можно протестировать
 	if (argc != 2)
 	{
 		std::cout << "Not correct parametres!" << std::endl;
 		return 1;
 	}
+	//2. Добавить unit тесты
 	std::string filePath = argv[1];
 	std::ifstream inputFile(filePath);
 	std::set <std::string> filterSet;
 	if (inputFile.is_open())
 	{
+		//1. функция называется с get но ничео не возвраает. Стоит или поменять название или сделать возврааемое значение - set
 		GetFilterSet(inputFile, filterSet);
 		if (filterSet.empty())
 		{

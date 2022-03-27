@@ -7,6 +7,7 @@
 #include <map>
 #include <algorithm>
 #include <Windows.h>
+//#include <clocale>
 
 std::string GetLowerString(std::string str)
 {
@@ -14,23 +15,19 @@ std::string GetLowerString(std::string str)
 	return str;
 }
 
-bool GetDictionary(std::ifstream &inputStream, std::multimap <std::string, std::string> &inputDictionary)
+void FillDictionary(std::ifstream &inputStream, std::multimap <std::string, std::string> &inputDictionary)
 {
-	bool existValues = false;
 	std::string key = "";
 	std::string value = "";
 	while (inputStream >> key >> value)
 	{
 		inputDictionary.insert(std::pair<std::string, std::string>(GetLowerString(key), value));
-		existValues = true;
 	}
-	return existValues;
 }
 
 void DictionaryChangesSave(std::multimap <std::string, std::string> &dictionary, const std::string &filePath)
 {
 	std::ofstream inputFile(filePath);
-	//inputFile << outputDictionary->first << " " << outputDictionary->second << std::endl;
 	for (auto outputDictionary = dictionary.begin(); outputDictionary != dictionary.end(); ++outputDictionary)
 	{
 		inputFile << outputDictionary->first << " " << outputDictionary->second << std::endl;
@@ -38,7 +35,7 @@ void DictionaryChangesSave(std::multimap <std::string, std::string> &dictionary,
 	inputFile.close();
 }
 
-std::string SearchStringInDictionary(const std::multimap <std::string, std::string>& dictionary, const std::string &inputString)
+std::string SearchWordInDictionary(const std::multimap <std::string, std::string>& dictionary, const std::string &inputString)
 {
 	std::string resultString = "";
 	std::string keyString = GetLowerString(inputString);
@@ -62,7 +59,7 @@ void SaveNewWordDialog(std::multimap <std::string, std::string> &dictionary, con
 	{
 		dictionary.insert(std::pair<std::string, std::string>(GetLowerString(inputString), newWord));
 	    changeState = true;
-		"The word \"" + inputString + "\" is saved in the dictionary as \"" + newWord + "\".";
+		std::cout << "The word \"" + inputString + "\" is saved in the dictionary as \"" + newWord + "\"." << std::endl;
 	}
 	else
 	{
@@ -79,7 +76,7 @@ void DictionaryDialog(std::multimap <std::string, std::string> &dictionary, bool
 		getline(std::cin, inputString);
 		if (inputString.length() > 0 && inputString != "...")
 		{
-			std::string stringFromDictionary = SearchStringInDictionary(dictionary, inputString);
+			std::string stringFromDictionary = SearchWordInDictionary(dictionary, inputString);
 			if (stringFromDictionary.length() > 0)
 			{
 				std::cout << stringFromDictionary << std::endl;
@@ -116,6 +113,7 @@ int main(int argc, char* argv[])
 {
 	SetConsoleCP(1251);// установка кодовой страницы win-cp 1251 в поток ввода
 	SetConsoleOutputCP(1251); // установка кодовой страницы win-cp 1251 в поток вывода
+	//setlocale(LC_ALL, "Russian");
 	if (argc != 2)
 	{
 		std::cout << "Not correct parametres!" << std::endl;
@@ -125,9 +123,10 @@ int main(int argc, char* argv[])
 	std::string filePath = argv[1];
 	std::ifstream inputFile(filePath);
 	std::multimap <std::string, std::string> dictionary;
-	if (inputFile.is_open())
+	if (inputFile.is_open() && inputFile.peek() != EOF)
 	{
-		if (!GetDictionary(inputFile, dictionary))
+		FillDictionary(inputFile, dictionary);
+		if (dictionary.empty())
 		{
 			std::cout << "Not correct input dictionary!" << std::endl;
 			return 1;

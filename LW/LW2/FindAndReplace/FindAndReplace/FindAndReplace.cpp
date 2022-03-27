@@ -16,8 +16,7 @@ std::string FindAndReplace(const std::string& subject, const std::string& search
 {
 	std::string resultString = "";
 	size_t startPos = 0;
-	size_t pos = std::string::npos;
-	pos = subject.find(search, startPos);
+	size_t pos = subject.find(search, startPos);
 	while (pos != std::string::npos)
 	{
 		resultString.append(subject, startPos, pos - startPos);
@@ -31,6 +30,7 @@ std::string FindAndReplace(const std::string& subject, const std::string& search
 
 int main(int argc, char* argv[])
 {
+	//Входящие данные в отдельную функцию
 	if (argc != 3)
 	{
 		std::cout << "Not correct parametres!" << std::endl;
@@ -39,7 +39,6 @@ int main(int argc, char* argv[])
 	std::string search = argv[1];
 	std::string replace = argv[2];
 	std::string subject = GetInputString();
-	//std::string subject = "Find some text or not. Need text in file. Some file text.";
 	if (subject.length() < 1)
 	{
 		std::cout << "Not correct input string!" << std::endl;
