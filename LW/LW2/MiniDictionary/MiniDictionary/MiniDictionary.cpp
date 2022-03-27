@@ -1,13 +1,18 @@
-﻿// MiniDictionary.cpp : Разработайте программу-словарь, осуществляющую перевод слов и словосочетаний, поступающих со стандартного потока ввода, 
-// с английского языка на русский с использованием заданного файласловаря и выводящую результат перевода в стандартный поток вывода.
-
-#include <iostream>
+﻿#include "MiniDictionary.h"
 #include <fstream>
-#include <sstream>
-#include <map>
-#include <algorithm>
-#include <Windows.h>
-//#include <clocale>
+
+std::optional<Args> ParseArgs(int argc, char* argv[], std::ostream& outStream)
+{
+	if (argc != 2)
+	{
+		outStream << "Invalid arguments count.\n";
+		outStream << "Usage: MiniDictionary.exe <input file name>\n";
+		return std::nullopt;
+	}
+	Args args;
+	args.fileName = argv[1];
+	return args;
+}
 
 std::string GetLowerString(std::string str)
 {
@@ -15,14 +20,30 @@ std::string GetLowerString(std::string str)
 	return str;
 }
 
-void FillDictionary(std::ifstream &inputStream, std::multimap <std::string, std::string> &inputDictionary)
+std::multimap <std::string, std::string> GetDictionary(std::ifstream &inputStream)
 {
 	std::string key = "";
 	std::string value = "";
+	std::multimap <std::string, std::string> inputDictionary;
 	while (inputStream >> key >> value)
 	{
 		inputDictionary.insert(std::pair<std::string, std::string>(GetLowerString(key), value));
 	}
+	return inputDictionary;
+}
+
+bool FillDictionary(std::ifstream &inputStream, std::multimap <std::string, std::string> &inputDictionary, std::ostream &outStream)
+{
+	if (inputStream.is_open() && inputStream.peek() != EOF)
+	{
+		inputDictionary = GetDictionary(inputStream);
+		if (inputDictionary.empty())
+		{
+			outStream << "Not correct input dictionary!" << std::endl;
+			return false;
+		}
+	}
+	return true;
 }
 
 void DictionaryChangesSave(std::multimap <std::string, std::string> &dictionary, const std::string &filePath)
@@ -50,56 +71,55 @@ std::string SearchWordInDictionary(const std::multimap <std::string, std::string
 	return resultString;
 }
 
-void SaveNewWordDialog(std::multimap <std::string, std::string> &dictionary, const std::string &inputString, bool & changeState)
+void SaveNewWordDialog(std::multimap <std::string, std::string> &dictionary, const std::string &inputString, bool & changeState, std::istream &inStream, std::ostream &outStream)
 {
-	std::cout << "Unknown word \"" + inputString + "\". Enter a translation or an empty line for rejection." << std::endl;
+	outStream << "Unknown word \"" + inputString + "\". Enter a translation or an empty line for rejection." << std::endl;
 	std::string newWord = "";
-	getline(std::cin, newWord);
+	getline(inStream, newWord);
 	if (newWord.length() > 0)
 	{
 		dictionary.insert(std::pair<std::string, std::string>(GetLowerString(inputString), newWord));
 	    changeState = true;
-		std::cout << "The word \"" + inputString + "\" is saved in the dictionary as \"" + newWord + "\"." << std::endl;
+		outStream << "The word \"" + inputString + "\" is saved in the dictionary as \"" + newWord + "\"." << std::endl;
 	}
 	else
 	{
-		std::cout << "The word \"" + inputString + "\" is ignored." << std::endl;
+		outStream << "The word \"" + inputString + "\" is ignored." << std::endl;
 	}
 }
 
-void DictionaryDialog(std::multimap <std::string, std::string> &dictionary, bool& changeState)
+void DictionaryDialog(std::multimap <std::string, std::string> &dictionary, bool &changeState, std::istream &inStream, std::ostream &outStream)
 {
 	std::string inputString = "";
 	while (inputString != "...")
 	{
 		inputString = "";
-		getline(std::cin, inputString);
+		getline(inStream, inputString);
 		if (inputString.length() > 0 && inputString != "...")
 		{
 			std::string stringFromDictionary = SearchWordInDictionary(dictionary, inputString);
 			if (stringFromDictionary.length() > 0)
 			{
-				std::cout << stringFromDictionary << std::endl;
+				outStream << stringFromDictionary << std::endl;
 			}
 			else
 			{
-				SaveNewWordDialog(dictionary, inputString, changeState);
+				SaveNewWordDialog(dictionary, inputString, changeState, inStream, outStream);
 			}
 		}
 
 	}
 }
 
-void DictionarySaveDialog(std::multimap <std::string, std::string> &dictionary, bool changeState, const std::string &filePath)
+void DictionarySaveDialog(std::multimap <std::string, std::string> &dictionary, bool changeState, const std::string &filePath, std::istream &inStream, std::ostream &outStream)
 {
-	DictionaryDialog(dictionary, changeState);
 	if (changeState)
 	{
 		std::string inputString = "";
 		do
 		{
-			std::cout << "Do you want to save changes? Сlick on \'y\' if YES, or \'n\' if NO" << std::endl;;
-			getline(std::cin, inputString);
+			outStream << "Do you want to save changes? Сlick on \'y\' if YES, or \'n\' if NO" << std::endl;;
+			getline(inStream, inputString);
 			inputString = GetLowerString(inputString);
 			if (inputString == "y")
 			{
@@ -108,53 +128,3 @@ void DictionarySaveDialog(std::multimap <std::string, std::string> &dictionary, 
 		} while (inputString != "y" && inputString != "n");
 	}
 }
-
-int main(int argc, char* argv[])
-{
-	SetConsoleCP(1251);// установка кодовой страницы win-cp 1251 в поток ввода
-	SetConsoleOutputCP(1251); // установка кодовой страницы win-cp 1251 в поток вывода
-	//setlocale(LC_ALL, "Russian");
-	if (argc != 2)
-	{
-		std::cout << "Not correct parametres!" << std::endl;
-		return 1;
-	}
-	bool changeState = false;
-	std::string filePath = argv[1];
-	std::ifstream inputFile(filePath);
-	std::multimap <std::string, std::string> dictionary;
-	if (inputFile.is_open() && inputFile.peek() != EOF)
-	{
-		FillDictionary(inputFile, dictionary);
-		if (dictionary.empty())
-		{
-			std::cout << "Not correct input dictionary!" << std::endl;
-			return 1;
-		}
-	}
-	else
-	{
-		changeState = true;
-	}
-	inputFile.close();
-	DictionarySaveDialog(dictionary, changeState, filePath);
-}
-
-// "$(ProjectDir)test.bat" "$(TargetPath)"
-
-/*
-%program% "text" "cat" < inputEmpty.txt >%OUT%
-fc.exe %OUT% "%~dp0notCorrectInputString.txt" >nul
-IF ERRORLEVEL 1 goto :testFailed
-echo OK3
-
-%program% "text" "cat" < inputText.txt >%OUT%
-fc.exe %OUT% "%~dp0catResult.txt" >nul
-IF ERRORLEVEL 1 goto :testFailed
-echo OK4
-
-%program% "Summer" "cat" < inputText2.txt >%OUT%
-fc.exe %OUT% "%~dp0notFound.txt" >nul
-IF ERRORLEVEL 1 goto :testFailed
-echo OK5
-*/

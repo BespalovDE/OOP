@@ -15,15 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MiniDictionary.cpp">
+    <ClCompile Include="MiniDictionary_tests.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\MiniDictionary\MiniDictionary.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MiniDictionary.h">
+    <ClInclude Include="..\MiniDictionary\MiniDictionary.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

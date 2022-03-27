@@ -1,18 +1,51 @@
 ﻿// Filter.cpp : Программа-фильтр, удаляющая из сообщений участников чата недопустимые слова
-// "$(ProjectDir)test.bat" "$(TargetPath)"
-#include <iostream>
+#include "Filter.h"
 #include <fstream>
-#include <sstream>
-#include <set>
-#include <algorithm>
 
-void GetFilterSet(std::ifstream &inputStream, std::set <std::string> &filterSet)
+std::optional<Args> ParseArgs(int argc, char *argv[], std::ostream &outStream)
+{
+	if (argc != 2)
+	{
+		outStream << "Invalid arguments count.\n";
+		outStream << "Usage: Filter.exe <input file name>\n";
+		return std::nullopt;
+	}
+	Args args;
+	args.fileName = argv[1];
+	return args;
+}
+
+std::set <std::string> GetFilterSet(std::ifstream &inputStream)
 {
 	std::string word = "";
+	std::set <std::string> filterSet;
 	while (inputStream >> word)
 	{
 		filterSet.insert(word);
 	}
+	return filterSet;
+}
+
+bool FillFilterSet(std::ifstream &inputStream, std::set <std::string> &filterSet, std::ostream &outStream)
+{
+	bool filterSetIsExist = false;
+	if (inputStream.is_open())
+	{
+		filterSet = GetFilterSet(inputStream);
+		if (filterSet.empty())
+		{
+			outStream << "Empty set of obscene words!" << std::endl;
+		}
+		else
+		{
+			filterSetIsExist = true;
+		}
+	}
+	else
+	{
+		outStream << "Input file is empty!" << std::endl;
+	}
+	return filterSetIsExist;
 }
 
 std::string GetLowerString(std::string str)
@@ -37,6 +70,7 @@ bool IsIterator(unsigned char charSimbol)
 	}
 	return true;
 }
+
 std::string GetWordOrSeparatorFromLineAfterIterator(std::string inputLine, int iterator)
 {
 	unsigned char currentChar = 0;
@@ -67,52 +101,30 @@ bool IsObsceneWord(const std::set <std::string> &filterSet, const std::string &i
 	return (filterSet.find(inputWord) == filterSet.end()) ? false : true;
 }
 
-//4. стоит разделить, слишком мноо работы для одной функции
-//1 ответственность: Считывает слова из потока
-//2.ответственность: проверяет слова 
-//3.ответственность: выводит результат
-void ProcessingIncomingLine(const std::set <std::string> &filterSet)
+void ProcessingLine(const std::set <std::string> &filterSet, const std::string &stringLine, std::ostream &outStream)
 {
-	std::string inputLine = "";
 	std::string inputWordOrSeparator = "";
 	int iterator = 0;
-	getline(std::cin, inputLine);
-	while (iterator < inputLine.length())
+	while (iterator < stringLine.length())
 	{
-		inputWordOrSeparator = GetWordOrSeparatorFromLineAfterIterator(inputLine, iterator);
+		inputWordOrSeparator = GetWordOrSeparatorFromLineAfterIterator(stringLine, iterator);
 		iterator += inputWordOrSeparator.length();
 		if (inputWordOrSeparator.length() > 0)
 		{
 			if (!IsObsceneWord(filterSet, GetLowerString(inputWordOrSeparator)))
 			{
-				std::cout << inputWordOrSeparator;
+				outStream << inputWordOrSeparator;
 			}
 		}
 	}
-	std::cout << std::endl;
+	outStream << std::endl;
 }
 
-int main(int argc, char* argv[])
+void ProcessingIncomingLine(const std::set <std::string> &filterSet, std::istream &inStream, std::ostream &outStream)
 {
-	//3. валидацию луче вынести, тогда ее можно протестировать
-	if (argc != 2)
-	{
-		std::cout << "Not correct parametres!" << std::endl;
-		return 1;
-	}
-	//2. Добавить unit тесты
-	std::string filePath = argv[1];
-	std::ifstream inputFile(filePath);
-	std::set <std::string> filterSet;
-	if (inputFile.is_open())
-	{
-		//1. функция называется с get но ничео не возвраает. Стоит или поменять название или сделать возврааемое значение - set
-		GetFilterSet(inputFile, filterSet);
-		if (filterSet.empty())
-		{
-			std::cout << "Empty set of obscene words!" << std::endl;
-			return 1;
-		}
-	}
-	ProcessingIncomingLine(filterSet);
+	std::string inputLine = "";
+	std::string inputWordOrSeparator = "";
+	int iterator = 0;
+	getline(inStream, inputLine);
+	ProcessingLine(filterSet, inputLine, outStream);
 }
