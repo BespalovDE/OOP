@@ -3,7 +3,7 @@
 #include <fstream>
 #include <Windows.h>
 #include "MiniDictionary.h"
-
+//словосочетания не обрабатываются
 
 int main(int argc, char* argv[])
 {
@@ -11,13 +11,19 @@ int main(int argc, char* argv[])
 	SetConsoleOutputCP(1251); // установка кодовой страницы win-cp 1251 в поток вывода
 	auto args = ParseArgs(argc, argv, std::cout);
 	std::ifstream inputFile(args->fileName);
-	std::multimap <std::string, std::string> dictionary;
-	if (!FillDictionary(inputFile, dictionary, std::cout))
+	Dictionary dictionary;
+	if (inputFile.is_open() && inputFile.peek() != EOF)
 	{
-		return 1;
+		if (!FillDictionary(inputFile, dictionary, std::cout))
+		{
+			return 1;
+		}
 	}
-	bool changeState = false;
+	int startDictionarySize = dictionary.size();
 	inputFile.close();
-	DictionaryDialog(dictionary, changeState, std::cin, std::cout);
-	DictionarySaveDialog(dictionary, changeState, args->fileName, std::cin, std::cout);
+	DictionaryDialog(dictionary, std::cin, std::cout);
+	if (dictionary.size() != startDictionarySize)
+	{
+		DictionarySaveDialog(dictionary, args->fileName, std::cin, std::cout);
+	}
 }

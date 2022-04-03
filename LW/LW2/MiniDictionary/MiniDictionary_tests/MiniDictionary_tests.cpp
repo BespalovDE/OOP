@@ -7,29 +7,33 @@
 TEST_CASE("Main test")
 {
 	std::ostringstream output;
-	std::multimap <std::string, std::string> dictionary;
-	SECTION("Dictionary not exists")
+	Dictionary dictionary;
+	/*SECTION("Dictionary not exists")
 	{
 		std::ifstream inputFileNotExists("DictionaryNotExists.txt");
+		std::istringstream input("cat\nman\nmap\nred\n...\n\n");
 		REQUIRE(FillDictionary(inputFileNotExists, dictionary, output));
 		REQUIRE(dictionary.size() == 0);
 		REQUIRE(output.str() == "");
-	}
+	}*/
 	SECTION("Dictionary is empty")
 	{
-		std::ifstream inputFileNotExists("EmptyDictionary.txt");
+		//std::ifstream inputFileNotExists("EmptyDictionary.txt");
+		std::istringstream inputFileNotExists("");
 		REQUIRE(FillDictionary(inputFileNotExists, dictionary, output));
 		REQUIRE(dictionary.size() == 0);
 		REQUIRE(output.str() == "");
 	}
 	SECTION("Dictionary not correct")
 	{
-		std::ifstream inputFileNotExists("NotCorrectDictionary.txt");
+		//std::ifstream inputFileNotExists("NotCorrectDictionary.txt");
+		std::istringstream inputFileNotExists("man");
 		REQUIRE(!FillDictionary(inputFileNotExists, dictionary, output));
 		REQUIRE(dictionary.size() == 0);
 		REQUIRE(output.str() == "Not correct input dictionary!\n");
 	}
-	std::ifstream inputFileNotExists("Dictionary.txt");
+	//std::ifstream inputFileNotExists("Dictionary.txt");
+	std::istringstream inputFileNotExists("man");
 	REQUIRE(FillDictionary(inputFileNotExists, dictionary, output));
 	REQUIRE(dictionary.size() == 5);
 	REQUIRE(dictionary.find("cat") != dictionary.end());
@@ -41,15 +45,16 @@ TEST_CASE("Main test")
 	bool changeState = false;
 	SECTION("Check dictionary values")
 	{
-		std::istringstream input("cat\nman\nmap\nred\n...\n\n");
+		std::istringstream input("cat кошка\ncat кот\nhello привет\nman человек\nmap Карта\nred красный");
 		std::string outStr = R"(кошка, кот
 человек
 Карта
 красный
 )";
 		std::ostringstream dialogOutput;
-		DictionaryDialog(dictionary, changeState, input, dialogOutput);
-		REQUIRE(!changeState);
+		int startDictionarySize = dictionary.size();
+		DictionaryDialog(dictionary, input, dialogOutput);
+		REQUIRE(dictionary.size() == startDictionarySize);
 		REQUIRE(dialogOutput.str() == outStr);
 	}
 	SECTION("Show new value, not memorize")
@@ -60,8 +65,9 @@ Unknown word "sun". Enter a translation or an empty line for rejection.
 The word "sun" is ignored.
 )";
 		std::ostringstream dialogOutput;
-		DictionaryDialog(dictionary, changeState, input, dialogOutput);
-		REQUIRE(!changeState);
+		int startDictionarySize = dictionary.size();
+		DictionaryDialog(dictionary, input, dialogOutput);
+		REQUIRE(dictionary.size() == startDictionarySize);
 		REQUIRE(dialogOutput.str() == outStr);
 
 	}
@@ -73,10 +79,11 @@ Unknown word "sun". Enter a translation or an empty line for rejection.
 The word "sun" is saved in the dictionary as "Солнце".
 )";
 		std::ostringstream dialogOutput;
-		DictionaryDialog(dictionary, changeState, input, dialogOutput);
+		int startDictionarySize = dictionary.size();
+		DictionaryDialog(dictionary, input, dialogOutput);
 		REQUIRE(changeState);
 		REQUIRE(dialogOutput.str() == outStr);
-		REQUIRE(dictionary.size() == 6);
+		REQUIRE(dictionary.size() == startDictionarySize + 1);
 		REQUIRE(dictionary.find("sun") != dictionary.end());
 	}
 
@@ -115,6 +122,29 @@ The word "sun" is saved in the dictionary as "Солнце".
 		REQUIRE(dialogOutput.str() == outStr);
 		inputFileNotExists.close();
 	}
+
+	SECTION("Dictionary not save and state on save with double ask")
+	{
+		REQUIRE(dictionary.size() == 5);
+		dictionary.insert(std::pair<std::string, std::string>("sun", "Солнце"));
+		REQUIRE(dictionary.size() == 6);
+		REQUIRE(dictionary.find("sun") != dictionary.end());
+
+		std::string filePath = "DictionaryNoSave.txt";
+		changeState = true;
+		std::istringstream input("PP\nn\n");
+		std::ostringstream dialogOutput;
+		std::string outStr = R"(Do you want to save changes? Сlick on 'y' if YES, or 'n' if NO
+Do you want to save changes? Сlick on 'y' if YES, or 'n' if NO
+)";
+		DictionarySaveDialog(dictionary, changeState, filePath, input, dialogOutput);
+		REQUIRE(changeState);
+		std::ifstream inputFileNotExists("DictionaryNoSave.txt");
+		REQUIRE(!inputFileNotExists.is_open());
+		REQUIRE(dialogOutput.str() == outStr);
+		inputFileNotExists.close();
+	}
+
 	SECTION("Dictionary save changes")
 	{
 		REQUIRE(dictionary.size() == 5);

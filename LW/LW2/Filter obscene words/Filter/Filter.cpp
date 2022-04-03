@@ -4,7 +4,7 @@
 
 std::optional<Args> ParseArgs(int argc, char *argv[], std::ostream &outStream)
 {
-	if (argc != 2)
+	if (argc != 1)
 	{
 		outStream << "Invalid arguments count.\n";
 		outStream << "Usage: Filter.exe <input file name>\n";

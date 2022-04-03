@@ -1,5 +1,7 @@
 cat кошка
 cat кот
+hello привет
 man человек
 map Карта
 red красный
+Как дела? How are you?
