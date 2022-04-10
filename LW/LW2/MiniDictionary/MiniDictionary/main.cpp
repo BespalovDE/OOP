@@ -14,16 +14,16 @@ int main(int argc, char* argv[])
 	Dictionary dictionary;
 	if (inputFile.is_open() && inputFile.peek() != EOF)
 	{
-		if (!FillDictionary(inputFile, dictionary, std::cout))
+		if (!FillDictionary(dictionary, { inputFile, std::cout }))
 		{
 			return 1;
 		}
 	}
 	int startDictionarySize = dictionary.size();
 	inputFile.close();
-	DictionaryDialog(dictionary, std::cin, std::cout);
+	DictionaryDialog(dictionary, { std::cin, std::cout });
 	if (dictionary.size() != startDictionarySize)
 	{
-		DictionarySaveDialog(dictionary, args->fileName, std::cin, std::cout);
+		DictionarySaveDialog(dictionary, args->fileName, { std::cin, std::cout });
 	}
 }

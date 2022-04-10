@@ -16,30 +16,34 @@ std::optional<Args> ParseArgs(int argc, char* argv[], std::ostream& outStream)
 
 std::string GetLowerString(std::string str)
 {
-	//c tolower надо через unsigned char 
-	std::transform(str.begin(), str.end(), str.begin(), [](unsigned char ch) { return tolower(ch); });
+	//c tolower надо через unsigned char +
+	std::transform(str.begin(), str.end(), str.begin(), [](unsigned char ch) { return std::tolower(static_cast<unsigned char>(ch), std::locale("Russian_Russia.1251")); });
 	return str;
 }
 
 //считывать из потока а не файла +
 Dictionary GetDictionary(std::istream &inputStream)
 {
-	std::string key; // не нужна первичная инициализация переменных string +
-	std::string value;
+	std::string line;
 	Dictionary inputDictionary;
-	while (inputStream >> key >> value)
+	const int offset = DELIMITER.length();
+	while (getline(inputStream, line))
 	{
-		inputDictionary.insert(std::pair<std::string, std::string>(GetLowerString(key), value));
+		size_t posBeforeWord, posBeforeTranslation;
+		if (((posBeforeWord = line.find(DELIMITER)) == 0) && ((posBeforeTranslation = line.find(DELIMITER, offset)) != std::string::npos))
+		{
+			inputDictionary.emplace(GetLowerString(line.substr(posBeforeWord + offset, posBeforeTranslation - offset)), line.substr(posBeforeTranslation + offset));
+		}
 	}
 	return inputDictionary;
 }
 
-bool FillDictionary(std::istream &inputStream, Dictionary &inputDictionary, std::ostream &outStream)
+bool FillDictionary(Dictionary &inputDictionary, ConsoleDialog consoleDialog)
 {
-	inputDictionary = GetDictionary(inputStream);
+	inputDictionary = GetDictionary(consoleDialog.inStream);
 	if (inputDictionary.empty())
 	{
-		outStream << "Not correct input dictionary!" << std::endl;
+		consoleDialog.outStream << "Not correct input dictionary!" << std::endl;
 		return false;
 	}
 	return true;
@@ -50,7 +54,7 @@ void SaveDictionary(Dictionary &dictionary, const std::string &filePath)
 	std::ofstream inputFile(filePath);
 	for (auto outputDictionary = dictionary.begin(); outputDictionary != dictionary.end(); ++outputDictionary)
 	{
-		inputFile << outputDictionary->first << " " << outputDictionary->second << std::endl;
+		inputFile << DELIMITER << outputDictionary->first << DELIMITER << outputDictionary->second << std::endl;
 	}
 	inputFile.close();
 }
@@ -71,40 +75,39 @@ std::string SearchWordInDictionary(const Dictionary &dictionary, const std::stri
 }
 // лучше возвращать признак тоо что словарь изменен, чем тащить переменную +
 // узнать что словарь изменился можно по его размеру +
-void SaveNewWordDialog(Dictionary &dictionary, const std::string &inputString, std::istream &inStream, std::ostream &outStream)
+void SaveNewWordDialog(Dictionary &dictionary, const std::string &inputString, ConsoleDialog consoleDialog)
 {
-	outStream << "Unknown word \"" + inputString + "\". Enter a translation or an empty line for rejection." << std::endl;
+	consoleDialog.outStream << "Unknown word \"" + inputString + "\". Enter a translation or an empty line for rejection." << std::endl;
 	std::string newWord = "";
-	getline(inStream, newWord);
+	getline(consoleDialog.inStream, newWord);
 	if (newWord.length() > 0)
 	{
-		dictionary.emplace(GetLowerString(inputString), newWord);
-		//было: dictionary.insert(std::pair<std::string, std::string>(GetLowerString(inputString), newWord)); +
-		outStream << "The word \"" + inputString + "\" is saved in the dictionary as \"" + newWord + "\"." << std::endl;
+		dictionary.emplace(GetLowerString(inputString), newWord); //было: dictionary.insert(std::pair<std::string, std::string>(GetLowerString(inputString), newWord)); +
+		consoleDialog.outStream << "The word \"" + inputString + "\" is saved in the dictionary as \"" + newWord + "\"." << std::endl;
 	}
 	else
 	{
-		outStream << "The word \"" + inputString + "\" is ignored." << std::endl;
+		consoleDialog.outStream << "The word \"" + inputString + "\" is ignored." << std::endl;
 	}
 }
 
-void DictionaryDialog(Dictionary &dictionary, std::istream &inStream, std::ostream &outStream)
+void DictionaryDialog(Dictionary &dictionary, ConsoleDialog consoleDialog)
 {
 	std::string inputString = "";
 	while (inputString != COMMAND_DICTIONARY_EXIT)
 	{
 		inputString = "";
-		getline(inStream, inputString);
+		getline(consoleDialog.inStream, inputString);
 		if (!inputString.empty() && inputString != COMMAND_DICTIONARY_EXIT) // empty на строку, было inputString.length() > 0 +
 		{
 			std::string stringFromDictionary = SearchWordInDictionary(dictionary, inputString);
 			if (stringFromDictionary.length() > 0)
 			{
-				outStream << stringFromDictionary << std::endl;
+				consoleDialog.outStream << stringFromDictionary << std::endl;
 			}
 			else
 			{
-				SaveNewWordDialog(dictionary, inputString, inStream, outStream);
+				SaveNewWordDialog(dictionary, inputString, consoleDialog);
 			}
 		}
 
@@ -112,14 +115,14 @@ void DictionaryDialog(Dictionary &dictionary, std::istream &inStream, std::ostre
 }
 
 // changeState здесь не нужен +
-// вход и выход в одну структуру с 2я ссылками
-void DictionarySaveDialog(Dictionary &dictionary, const std::string &filePath, std::istream &inStream, std::ostream &outStream)
+// вход и выход в одну структуру с 2я ссылками +
+void DictionarySaveDialog(Dictionary &dictionary, const std::string &filePath, ConsoleDialog consoleDialog)
 {
-		std::string inputString = "";
+		std::string inputString;
 		do
 		{
-			outStream << "Do you want to save changes? Сlick on \'y\' if YES, or \'n\' if NO" << std::endl;;
-			getline(inStream, inputString);
+			consoleDialog.outStream << "Do you want to save changes? Сlick on \'y\' if YES, or \'n\' if NO" << std::endl;;
+			getline(consoleDialog.inStream, inputString);
 			inputString = GetLowerString(inputString);
 			if (inputString == COMMAND_DICTIONARY_SAVE)
 			{
