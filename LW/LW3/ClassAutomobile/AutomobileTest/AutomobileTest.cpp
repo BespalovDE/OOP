@@ -214,3 +214,51 @@ TEST_CASE("Test class AutomobileInterface")
 	REQUIRE("Engine is Off\n" == output.str());
 	output.str("");
 }
+
+TEST_CASE("Test class AutomobileInterface go back")
+{
+	Automobile automobile;
+	std::istringstream input("EngineOn\nSetGear -1\nSetSpeed 30\nSetSpeed 15\nInfo\nSetSpeed 20\nEngineOff\nSetGear 0\nSetSpeed 0\nEngineOff\n");
+	std::ostringstream output;
+	AutomobileInterface automobileInterface(automobile, input, output);
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Engine is On\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Now gear is -1\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Speed can`t be changed on 30\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Now speed is 15\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Engine: on\nDirection: backward\nSpeed: 15\nGear: -1\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Now speed is 20\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Engine is can't be TurnOff\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Now gear is 0\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Now speed is 0\n" == output.str());
+	output.str("");
+
+	automobileInterface.InterfaceCommand();
+	REQUIRE("Engine is Off\n" == output.str());
+	output.str("");
+}
