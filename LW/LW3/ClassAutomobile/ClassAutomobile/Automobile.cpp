@@ -117,7 +117,7 @@ bool Automobile::SetGear(int gear)
 	{
 		return false;
 	}
-	if ((m_direction == Direction::HOLD || m_direction == Direction::FORWARD) && gear <= 1)
+	if ((m_direction == Direction::HOLD || m_direction == Direction::FORWARD) && gear == 1)
 	{
 		if (IsCorrectSpeedForGear(gear, m_speed))
 		{
