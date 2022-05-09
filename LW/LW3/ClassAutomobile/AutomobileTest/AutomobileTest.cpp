@@ -20,7 +20,7 @@ TEST_CASE("Test class Automobile")
 		automobile.TurnOffEngine();
 		REQUIRE(!automobile.IsTurnedOn());
 	}
-	SECTION("Try change gear/speed in On TurnOff Engine")
+	SECTION("Try change gear in On TurnOff Engine on Correct value")
 	{
 		REQUIRE(automobile.SetGear(0));
 		REQUIRE(!automobile.SetGear(-1));
@@ -28,34 +28,126 @@ TEST_CASE("Test class Automobile")
 		REQUIRE(!automobile.SetGear(3));
 		REQUIRE(!automobile.SetGear(4));
 		REQUIRE(!automobile.SetGear(5));
-		REQUIRE(!automobile.SetGear(10));
-		REQUIRE(!automobile.SetGear(-10));
-
+	}
+	SECTION("Try change speed in On TurnOff Engine on Correct value")
+	{
 		REQUIRE(automobile.SetSpeed(0));
-		REQUIRE(!automobile.SetSpeed(-10));
 		REQUIRE(!automobile.SetSpeed(20));
 		REQUIRE(!automobile.SetSpeed(50));
+	}
+	SECTION("Try change gear in On TurnOff Engine on NOT Correct value")
+	{
+		REQUIRE(!automobile.SetGear(6));
+		REQUIRE(!automobile.SetGear(-2));
+		REQUIRE(!automobile.SetGear(10));
+		REQUIRE(!automobile.SetGear(-10));
+	}
+	SECTION("Try change speed in On TurnOff Engine on NOT Correct value")
+	{
+		REQUIRE(!automobile.SetSpeed(1));
+		REQUIRE(!automobile.SetSpeed(-10));
+		REQUIRE(!automobile.SetSpeed(151));
 		REQUIRE(!automobile.SetSpeed(170));
 	}
-	SECTION("Turn Off Engin")
+	SECTION("Turn Off Engin on Forward and Gear > 0")
+	{
+		automobile.TurnOnEngine();
+		automobile.SetGear(1);
+		automobile.SetSpeed(20);
+		REQUIRE(!automobile.TurnOffEngine());
+	}
+	SECTION("Turn Off Engin on Gear > 0 and speed = 0")
+	{
+		automobile.TurnOnEngine();
+		automobile.SetGear(1);
+		REQUIRE(!automobile.TurnOffEngine());
+	}
+	SECTION("Turn Off Engin on Gear = 0 and speed > 0")
+	{
+		automobile.TurnOnEngine();
+		automobile.SetGear(1);
+		automobile.SetSpeed(20);
+		automobile.SetGear(0);
+		REQUIRE(!automobile.TurnOffEngine());
+	}
+	SECTION("Automobile Start on not correct gear")
+	{
+		automobile.TurnOnEngine();
+		REQUIRE(!automobile.SetGear(2));
+		REQUIRE(automobile.GetGear() == 0);
+		REQUIRE(!automobile.SetGear(3));
+		REQUIRE(automobile.GetGear() == 0);
+		REQUIRE(!automobile.SetGear(4));
+		REQUIRE(automobile.GetGear() == 0);
+		REQUIRE(!automobile.SetGear(5));
+		REQUIRE(automobile.GetGear() == 0);
+		REQUIRE(!automobile.SetGear(6));
+		REQUIRE(automobile.GetGear() == 0);
+	}
+	SECTION("Automobile Start on correct gear")
 	{
 		automobile.TurnOnEngine();
 		REQUIRE(automobile.SetGear(1));
-		REQUIRE(automobile.SetSpeed(20));
-
-		REQUIRE(!automobile.TurnOffEngine());
-
-		REQUIRE(automobile.SetSpeed(0));
-		REQUIRE(!automobile.TurnOffEngine());
-
-		REQUIRE(automobile.SetSpeed(20));
+		REQUIRE(automobile.GetGear() == 1);
 		REQUIRE(automobile.SetGear(0));
-		REQUIRE(!automobile.TurnOffEngine());
+		REQUIRE(automobile.SetGear(-1));
+		REQUIRE(automobile.SetGear(0));
+	}
+	SECTION("Automobile Start and go on 2 gear")
+	{
+		automobile.TurnOnEngine();
+		REQUIRE(automobile.SetGear(1));
+		REQUIRE(automobile.GetGear() == 1);
+		REQUIRE(automobile.SetSpeed(20));
+		REQUIRE(automobile.GetSpeed() == 20);
+		REQUIRE(automobile.GetDirection() == Direction::FORWARD);
+		REQUIRE(automobile.SetGear(2));
+		REQUIRE(automobile.GetGear() == 2);
+	}
+	SECTION("Automobile Start and go on 3 gear")
+	{
+		automobile.TurnOnEngine();
+		automobile.SetGear(1);
+		automobile.SetSpeed(20);
+		automobile.SetGear(2);
+		REQUIRE(automobile.SetSpeed(50));
+		REQUIRE(automobile.SetGear(3));
+		REQUIRE(automobile.GetSpeed() == 50);
+		REQUIRE(automobile.GetGear() == 3);
+		REQUIRE(automobile.GetDirection() == Direction::FORWARD);
 
+	}
+	SECTION("Automobile Start on back and stop")
+	{
+		automobile.TurnOnEngine();
+		REQUIRE(automobile.SetGear(-1));
+		REQUIRE(automobile.GetDirection() == Direction::HOLD);
+		REQUIRE(!automobile.SetSpeed(-5));
+		REQUIRE(automobile.GetSpeed() == 0);
+
+		REQUIRE(!automobile.SetSpeed(25));
+		REQUIRE(automobile.GetSpeed() == 0);
+
+		REQUIRE(automobile.SetSpeed(15));
+		REQUIRE(automobile.GetSpeed() == 15);
+		REQUIRE(automobile.GetDirection() == Direction::BACKWARD);
+	}
+	SECTION("Automobile stop from backward")
+	{
+		automobile.TurnOnEngine();
+		automobile.SetGear(-1);
+		automobile.SetSpeed(15);
+		REQUIRE(automobile.GetSpeed() == 15);
+		REQUIRE(automobile.GetDirection() == Direction::BACKWARD);
+
+		REQUIRE(automobile.SetGear(0));
+		REQUIRE(!automobile.SetSpeed(20));
+		REQUIRE(automobile.GetSpeed() == 15);
+		REQUIRE(automobile.SetSpeed(10));
+		REQUIRE(automobile.GetSpeed() == 10);
 		REQUIRE(automobile.SetSpeed(0));
-		REQUIRE(automobile.TurnOffEngine());
-
-		REQUIRE(!automobile.IsTurnedOn());
+		REQUIRE(automobile.GetSpeed() == 0);
+		REQUIRE(automobile.GetDirection() == Direction::HOLD);
 	}
 	SECTION("Automobile Start and go")
 	{
