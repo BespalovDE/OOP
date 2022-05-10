@@ -1,5 +1,11 @@
 ﻿#include "ParserURL.h"
 
+std::string GetLowerString(std::string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char ch) { return std::tolower(static_cast<unsigned char>(ch), std::locale("Russian_Russia.1251")); });
+    return str;
+}
+
 bool CheckProtocol(std::string &strProtocol, Protocol &protocol)
 {
     if (strProtocol == "http")
@@ -51,7 +57,8 @@ bool ParseURL(std::string const &url, Protocol &protocol, int &port, std::string
     boost::regex ex("(http|https|ftp)://([^/ :]+):?(:?[^/ ]*)/?(/?[^ ]*)");
     boost::cmatch what;
     std::string stringPort;
-    if (regex_match(url.c_str(), what, ex))
+    std::string urlRegex = GetLowerString(url);
+    if (regex_match(urlRegex.c_str(), what, ex))
     {
         std::string strProtocol = std::string(what[1].first, what[1].second);
         host = std::string(what[2].first, what[2].second);
