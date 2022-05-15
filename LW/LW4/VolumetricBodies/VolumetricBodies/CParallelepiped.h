@@ -11,6 +11,7 @@ class CParallelepiped final: public CSolidBody
         double GetHeight() const;
         double GetDepth() const;
     private:
+        void AdditionalInfo(std::ostream &strm) const override;
         double m_width;
         double m_height;
         double m_depth;

@@ -9,5 +9,6 @@ class CSphere final: public CSolidBody
         std::string GetName() const override;
         double GetRadius() const;
     private:
+        void AdditionalInfo(std::ostream &strm) const override;
         double m_radius;
 };

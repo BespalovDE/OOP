@@ -9,5 +9,6 @@ std::string CBody::ToString() const
 	info << "Density: " << GetDensity() << '\n';
 	info << "Volume: " << GetVolume() << '\n';
 	info << "Mass: " << GetMass() << '\n';
+	AdditionalInfo(info);
 	return info.str();
 }

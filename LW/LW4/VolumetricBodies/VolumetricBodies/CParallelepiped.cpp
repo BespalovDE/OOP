@@ -33,3 +33,10 @@ double CParallelepiped::GetVolume() const
 {
 	return m_width * m_height * m_depth;
 }
+
+void CParallelepiped::AdditionalInfo(std::ostream& strm) const
+{
+	strm << "Width: " << GetWidth() << "\n";
+	strm << "Height: " << GetHeight() << "\n";
+	strm << "Depth: " << GetDepth() << "\n";
+}

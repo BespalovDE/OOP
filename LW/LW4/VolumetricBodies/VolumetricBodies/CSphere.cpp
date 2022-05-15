@@ -21,3 +21,8 @@ double CSphere::GetVolume() const
 {
 	return (4 * M_PI * pow(m_radius, 3)) / 3;
 }
+
+void CSphere::AdditionalInfo(std::ostream &strm) const
+{
+	strm << "Radius: " << GetRadius() << "\n";
+}

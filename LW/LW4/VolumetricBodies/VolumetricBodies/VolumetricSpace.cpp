@@ -3,7 +3,7 @@
 
 using namespace std::placeholders;
 
-VolumetricSpace::VolumetricSpace(std::istream& input, std::ostream& output)
+VolumetricSpace::VolumetricSpace(std::istream &input, std::ostream &output)
 	: m_input(input)
 	, m_output(output)
 	, m_actionMap({
@@ -35,7 +35,7 @@ bool VolumetricSpace::HandleCommand()
 	return false;
 }
 
-std::optional<std::vector<double>> ParseArgs(std::istream& args)
+std::optional<std::vector<double>> ParseArgs(std::istream &args)
 {
 	std::string stringLine;
 	getline(args, stringLine);
@@ -57,59 +57,174 @@ std::optional<std::vector<double>> ParseArgs(std::istream& args)
 	return optionArray;
 }
 
-bool VolumetricSpace::AddSphere(std::istream& args)
+bool VolumetricSpace::AddSphere(std::istream &inputArgs)
 {
-
+	auto args = ParseArgs(inputArgs);
+	if (!args)
+	{
+		return false;
+	}
+	std::vector<double> arguments = args.value();
+	if (arguments.size() != 2)
+	{
+		return false;
+	}
+	auto sphere = std::make_shared<CSphere>(arguments[0], arguments[1]);
+	if (m_compounds.empty())
+	{
+		m_bodies.emplace_back(std::move(sphere));
+		return true;
+	}
+	std::weak_ptr<CCompound> it = m_compounds.back();
+	it.lock()->AddChildBody(sphere);
 	return true;
 }
 
-bool VolumetricSpace::AddParallelepiped(std::istream& args)
+bool VolumetricSpace::AddParallelepiped(std::istream &inputArgs)
 {
-
+	auto args = ParseArgs(inputArgs);
+	if (!args)
+	{
+		return false;
+	}
+	std::vector<double> arguments = args.value();
+	if (arguments.size() != 4)
+	{
+		return false;
+	}
+	auto parallelepiped = std::make_shared<CParallelepiped>(arguments[0], arguments[1], arguments[2], arguments[3]);
+	if (m_compounds.empty())
+	{
+		m_bodies.push_back(std::move(parallelepiped));
+		return true;
+	}
+	std::weak_ptr<CCompound> it = m_compounds.back();
+	it.lock()->AddChildBody(parallelepiped);
 	return true;
 }
 
-bool VolumetricSpace::AddCone(std::istream& args)
+bool VolumetricSpace::AddCone(std::istream &inputArgs)
 {
-
+	auto args = ParseArgs(inputArgs);
+	if (!args)
+	{
+		return false;
+	}
+	std::vector<double> arguments = args.value();
+	if (arguments.size() != 3)
+	{
+		return false;
+	}
+	auto cone = std::make_shared<CCone>(arguments[0], arguments[1], arguments[2]);
+	if (m_compounds.empty())
+	{
+		m_bodies.emplace_back(std::move(cone));
+		return true;
+	}
+	std::weak_ptr<CCompound> it = m_compounds.back();
+	it.lock()->AddChildBody(cone);
 	return true;
 }
 
-bool VolumetricSpace::AddCylinder(std::istream& args)
+bool VolumetricSpace::AddCylinder(std::istream &inputArgs)
 {
-
+	auto args = ParseArgs(inputArgs);
+	if (!args)
+	{
+		return false;
+	}
+	std::vector<double> arguments = args.value();
+	if (arguments.size() != 3)
+	{
+		return false;
+	}
+	auto cylinder = std::make_shared<CCylinder>(arguments[0], arguments[1], arguments[2]);
+	if (m_compounds.empty())
+	{
+		m_bodies.emplace_back(std::move(cylinder));
+		return true;
+	}
+	std::weak_ptr<CCompound> it = m_compounds.back();
+	it.lock()->AddChildBody(cylinder);
 	return true;
 }
 
-bool VolumetricSpace::AddCompound(std::istream& args)
+bool VolumetricSpace::AddCompound(std::istream &inputArgs)
 {
-
+	auto args = ParseArgs(inputArgs);
+	if (!args)
+	{
+		return false;
+	}
+	std::vector<double> arguments = args.value();
+	if (!arguments.empty())
+	{
+		return false;
+	}
+	auto compound = std::make_shared<CCompound>();
+	if (m_compounds.empty())
+	{
+		m_bodies.emplace_back(compound);
+	}
+	else
+	{
+		std::weak_ptr<CCompound> it = m_compounds.back();
+		it.lock()->AddChildBody(compound);
+	}
+	m_compounds.emplace_back(compound);
 	return true;
 }
 
-bool VolumetricSpace::RemoveLastCompoundPtr(std::istream& args)
+bool VolumetricSpace::RemoveLastCompoundPtr(std::istream &inputArgs)
 {
-
+	if (!inputArgs.eof())
+	{
+		return false;
+	}
+	if (m_compounds.empty())
+	{
+		return false;
+	}
+	m_compounds.pop_back();
 	return true;
 }
 
-bool VolumetricSpace::Info(std::istream& args)
+bool VolumetricSpace::Info(std::istream &InputArgs)
 {
-
+	m_output << "sphere <density> <radius>\n";
+	m_output << "cone <density> <base_radius> <height>\n";
+	m_output << "cylinder <density> <base_radius> <height>\n";
+	m_output << "parallelepiped <density> <width> <height> <depth>\n";
+	m_output << "compound\n";
+	m_output << "endCompound\n";
 	return true;
 }
 
 void VolumetricSpace::PrintBodiesInfo()
 {
-
+	m_output << std::accumulate(m_bodies.begin(), m_bodies.end(), std::string{},
+		[](std::string info, const std::shared_ptr<CBody> &body) { return info += body->ToString() + '\n'; });
 }
 
 void VolumetricSpace::PrintMaxMassBody() const
 {
-
+	auto CompareWeight = [](const std::shared_ptr<CBody> &cBody1, const std::shared_ptr<CBody> &cBody2)
+	{
+		return cBody1->GetMass() < cBody2->GetMass();
+	};
+	auto maxWeightBody = std::max_element(m_bodies.cbegin(), m_bodies.cend(), CompareWeight);
+	m_output << "The Body that has the most biggest mass is:\n" << (*maxWeightBody)->ToString();
 }
 
 void VolumetricSpace::PrintBodyWithLeastWeightInWater() const
 {
-
+	// константы объ€влены тут, чтоб их можно было поместить в л€мбду
+	const double gravity(9.8);
+	const double waterDensity(1000);
+	auto CompareWeigtInWater = [gravity, waterDensity](const std::shared_ptr<CBody>& cBody1, const std::shared_ptr<CBody>& cBody2)
+	{
+		return (cBody1->GetDensity() - waterDensity) * cBody1->GetMass() * gravity < (cBody2->GetDensity() - waterDensity)* cBody2->GetMass()* gravity;
+	};
+	auto body = std::min_element(m_bodies.cbegin(), m_bodies.cend(), CompareWeigtInWater);
+	m_output << "The Boby that has the least weight in the water is:\n" << (*body)->ToString();
 }

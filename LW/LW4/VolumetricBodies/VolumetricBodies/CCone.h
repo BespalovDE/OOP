@@ -10,6 +10,7 @@ class CCone final: public CSolidBody
         double GetHeight() const;
         double GetBaseRadius() const;
     private:
+        void AdditionalInfo(std::ostream &strm) const override;
         double m_baseRadius;
         double m_height;
 };

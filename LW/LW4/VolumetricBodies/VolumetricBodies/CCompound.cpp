@@ -81,3 +81,12 @@ bool CCompound::AddChildBody(std::shared_ptr<CBody> childPtr)
 	childCompoundPtr->SetParentPtr(shared_from_this()); // —оздает shared_ptr, который владеет экземпл€ром совместно с существующими владельцами shared_ptr
 	return true;
 }
+
+void CCompound::AdditionalInfo(std::ostream &strm) const
+{
+	strm << "BEGIN_BODIES_IN_COMPOUND:\n";
+	std::string compoundBodiesInfo = std::accumulate(m_children.begin(), m_children.end(), std::string{},
+		[](std::string info, const std::shared_ptr<CBody> &child) { return info += child->ToString() + '\n'; });
+	strm << compoundBodiesInfo;
+	strm << "END_BODIES_IN_COMPOUND\n";
+}

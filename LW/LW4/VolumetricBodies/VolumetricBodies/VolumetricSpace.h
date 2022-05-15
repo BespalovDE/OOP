@@ -17,13 +17,13 @@ class VolumetricSpace
 	private:
 		using Handler = std::function<bool(std::istream &args)>;
 		using ActionMap = std::map<std::string, Handler>;
-		bool AddSphere(std::istream &args);
-		bool AddParallelepiped(std::istream &args);
-		bool AddCone(std::istream &args);
-		bool AddCylinder(std::istream &args);
-		bool AddCompound(std::istream &args);
-		bool RemoveLastCompoundPtr(std::istream &args);
-		bool Info(std::istream &args);
+		bool AddSphere(std::istream &inputArgs);
+		bool AddParallelepiped(std::istream &inputArgs);
+		bool AddCone(std::istream &inputArgs);
+		bool AddCylinder(std::istream &inputArgs);
+		bool AddCompound(std::istream &inputArgs);
+		bool RemoveLastCompoundPtr(std::istream &inputArgs);
+		bool Info(std::istream &inputArgs);
 		const ActionMap m_actionMap;
 		std::istream &m_input;
 		std::ostream &m_output;

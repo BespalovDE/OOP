@@ -10,5 +10,7 @@ class CBody
 		virtual std::string ToString() const;
 		virtual std::string GetName() const = 0;
 		virtual ~CBody() = default;
+	private:
+		virtual void AdditionalInfo(std::ostream &strm) const = 0;
 };
 

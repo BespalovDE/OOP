@@ -15,64 +15,64 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VolumetricBodiesMain.cpp">
+    <ClCompile Include="TestVolumetricBodies.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CBody.cpp">
+    <ClCompile Include="..\VolumetricBodies\CBody.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CSphere.cpp">
+    <ClCompile Include="..\VolumetricBodies\CCompound.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CCylinder.cpp">
+    <ClCompile Include="..\VolumetricBodies\CCone.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CCone.cpp">
+    <ClCompile Include="..\VolumetricBodies\CCylinder.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CParallelepiped.cpp">
+    <ClCompile Include="..\VolumetricBodies\CParallelepiped.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="..\VolumetricBodies\CSolidBody.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CSolidBody.cpp">
+    <ClCompile Include="..\VolumetricBodies\CSphere.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CCompound.cpp">
+    <ClCompile Include="..\VolumetricBodies\pch.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="VolumetricSpace.cpp">
+    <ClCompile Include="..\VolumetricBodies\VolumetricSpace.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CBody.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CBody.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CSphere.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CCompound.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CCylinder.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CCone.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CCone.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CCylinder.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CParallelepiped.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CParallelepiped.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CSolidBody.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CSolidBody.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\CSphere.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CCompound.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\pch.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="VolumetricSpace.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="..\VolumetricBodies\VolumetricSpace.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

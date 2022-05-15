@@ -27,3 +27,9 @@ double CCone::GetBaseRadius() const
 {
 	return m_baseRadius;
 }
+
+void CCone::AdditionalInfo(std::ostream &strm) const
+{
+	strm << "Height: " << GetHeight() << "\n";
+	strm << "BaseRadius: " << GetBaseRadius() << "\n";
+}
