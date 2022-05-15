@@ -79,6 +79,7 @@ bool CCompound::AddChildBody(std::shared_ptr<CBody> childPtr)
 		}
 	}
 	childCompoundPtr->SetParentPtr(shared_from_this()); // —оздает shared_ptr, который владеет экземпл€ром совместно с существующими владельцами shared_ptr
+	m_children.emplace_back(std::move(childPtr));
 	return true;
 }
 

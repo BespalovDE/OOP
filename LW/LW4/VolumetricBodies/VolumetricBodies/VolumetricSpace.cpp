@@ -213,7 +213,7 @@ void VolumetricSpace::PrintMaxMassBody() const
 		return cBody1->GetMass() < cBody2->GetMass();
 	};
 	auto maxWeightBody = std::max_element(m_bodies.cbegin(), m_bodies.cend(), CompareWeight);
-	m_output << "The Body that has the most biggest mass is:\n" << (*maxWeightBody)->ToString();
+	m_output << biggestMass << "\n" << (*maxWeightBody)->ToString();
 }
 
 void VolumetricSpace::PrintBodyWithLeastWeightInWater() const
@@ -226,5 +226,5 @@ void VolumetricSpace::PrintBodyWithLeastWeightInWater() const
 		return (cBody1->GetDensity() - waterDensity) * cBody1->GetMass() * gravity < (cBody2->GetDensity() - waterDensity)* cBody2->GetMass()* gravity;
 	};
 	auto body = std::min_element(m_bodies.cbegin(), m_bodies.cend(), CompareWeigtInWater);
-	m_output << "The Boby that has the least weight in the water is:\n" << (*body)->ToString();
+	m_output << leastWeightWater << "\n" << (*body)->ToString();
 }
