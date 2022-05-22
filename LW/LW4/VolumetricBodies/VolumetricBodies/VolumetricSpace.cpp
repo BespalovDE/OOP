@@ -220,10 +220,10 @@ void VolumetricSpace::PrintBodyWithLeastWeightInWater() const
 {
 	// константы объ€влены тут, чтоб их можно было поместить в л€мбду
 	const double gravity(9.8);
-	const double waterDensity(1000);
+	const double waterDensity(1000.0);
 	auto CompareWeigtInWater = [gravity, waterDensity](const std::shared_ptr<CBody>& cBody1, const std::shared_ptr<CBody>& cBody2)
 	{
-		return (cBody1->GetDensity() - waterDensity) * cBody1->GetMass() * gravity < (cBody2->GetDensity() - waterDensity)* cBody2->GetMass()* gravity;
+		return (cBody1->GetDensity() - waterDensity) * cBody1->GetVolume() * gravity < (cBody2->GetDensity() - waterDensity)* cBody2->GetVolume() * gravity;
 	};
 	auto body = std::min_element(m_bodies.cbegin(), m_bodies.cend(), CompareWeigtInWater);
 	m_output << leastWeightWater << "\n" << (*body)->ToString();

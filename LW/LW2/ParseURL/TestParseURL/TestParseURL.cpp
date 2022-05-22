@@ -23,9 +23,11 @@ TEST_CASE("Main test")
             url = "http:/yandexr/";
             REQUIRE(!ParseURL(url, protocol, port, host, document));
         }
+        //2.добавить проверку некорректых портов
     }
     SECTION("Correct values")
     {    
+        //1.проверить дефолтные порты
         SECTION("Short hosts ftp")
         {
             url = "ftp://ftp.intel.com/";
@@ -64,7 +66,7 @@ TEST_CASE("Main test")
         }
         SECTION("Hosts with port")
         {
-            url = "https://www.google.com:443/webhp?gws_rd=ssl";
+            url = "https://www.google.com:/webhp?gws_rd=ssl";
             REQUIRE(ParseURL(url, protocol, port, host, document));
             REQUIRE(protocol == Protocol::HTTPS);
             REQUIRE(port == PortHTTPS);

@@ -21,6 +21,6 @@ class CCompound final:
         void AdditionalInfo(std::ostream &strm) const override;
         std::weak_ptr<CBody> GetParentPtr() const;
         std::vector<std::shared_ptr<CBody>> m_children;
-        std::weak_ptr<CBody> m_parent_ptr;
+        std::weak_ptr<CBody> m_parent_ptr; // m_parentPtr 
 };
 

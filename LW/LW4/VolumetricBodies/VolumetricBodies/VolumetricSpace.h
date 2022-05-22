@@ -9,7 +9,7 @@
 class VolumetricSpace
 {
 	public:
-		const std::string leastWeightWater = "The Boby that has the least weight in the water is :";
+		const std::string leastWeightWater = "The Boby that has the least weight in the water is:";
 		const std::string biggestMass = "The Body that has the most biggest mass is:";
 		VolumetricSpace(std::istream &input, std::ostream &output);
 		bool HandleCommand();

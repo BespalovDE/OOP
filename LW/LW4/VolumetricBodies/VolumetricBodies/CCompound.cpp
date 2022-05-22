@@ -18,14 +18,14 @@ double CCompound::GetDensity() const
 
 double CCompound::GetVolume() const
 {
-	return std::accumulate(m_children.begin(), m_children.end(), 0.0f,
+	return std::accumulate(m_children.begin(), m_children.end(), 0.0,
 		[](double volumeSum, const std::shared_ptr<CBody> &child) 
 			{ return volumeSum + child->GetVolume(); });
 }
 
 double CCompound::GetMass() const
 {
-	return std::accumulate(m_children.begin(), m_children.end(), 0.0f,
+	return std::accumulate(m_children.begin(), m_children.end(), 0.0,
 		[](double massSum, const std::shared_ptr<CBody> &child) 
 			{ return massSum + child->GetMass(); });
 }
@@ -42,6 +42,7 @@ std::weak_ptr<CBody> CCompound::GetParentPtr() const
 
 bool CCompound::AddChildBody(std::shared_ptr<CBody> childPtr)
 {
+	// вместо имени pointer_cast
 	if (childPtr->GetName() != "Compound")
 	{
 		//m_children.push_back(childPtr);
@@ -61,6 +62,7 @@ bool CCompound::AddChildBody(std::shared_ptr<CBody> childPtr)
 	{
 		return false;
 	}
+	// сразу в While!!!
 	std::shared_ptr<CBody> parentPtr = GetParentPtr().lock(); // родитель this
 	while (parentPtr != nullptr) // пока не обойдем всех родителей
 	{
