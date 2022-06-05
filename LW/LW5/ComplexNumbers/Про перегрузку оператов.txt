@@ -1,0 +1,3 @@
+https://habr.com/ru/post/132014/
+
+Роб Мюррей, в своей книге C++ Strategies and Tactics

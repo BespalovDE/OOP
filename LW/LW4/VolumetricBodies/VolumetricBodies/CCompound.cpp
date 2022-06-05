@@ -42,45 +42,48 @@ std::weak_ptr<CBody> CCompound::GetParentPtr() const
 
 bool CCompound::AddChildBody(std::shared_ptr<CBody> childPtr)
 {
-	// вместо имени pointer_cast
-	if (childPtr->GetName() != "Compound")
+	/*if (!std::dynamic_pointer_cast<CCompound>(childPtr))
+	if (childPtr->GetName() != "Compound") // вместо имени pointer_cast
 	{
 		//m_children.push_back(childPtr);
 		m_children.emplace_back(std::move(childPtr));
 		return true;
-	}
-	if (childPtr.get() == this) // сам в себ€
+	}*/
+	if (std::dynamic_pointer_cast<CCompound>(childPtr))
 	{
-		return false;
-	}
-	auto childCompoundPtr = std::dynamic_pointer_cast<CCompound>(childPtr); // получаем child указатель
-	if (!childCompoundPtr)
-	{
-		return false;
-	}
-	if (childCompoundPtr->GetParentPtr().lock()) // если не удаетс€ получить родител€
-	{
-		return false;
-	}
-	// сразу в While!!!
-	std::shared_ptr<CBody> parentPtr = GetParentPtr().lock(); // родитель this
-	while (parentPtr != nullptr) // пока не обойдем всех родителей
-	{
-		if (childPtr == parentPtr) // родител€ в себ€
+		if (childPtr.get() == this) // сам в себ€
 		{
 			return false;
 		}
-		auto parentCompoundPtr = std::dynamic_pointer_cast<CCompound>(parentPtr);
-		if (parentCompoundPtr)
-		{
-			parentPtr = parentCompoundPtr->GetParentPtr().lock(); // родитель родител€ и тд, пока не null
-		}
-		else
+		auto childCompoundPtr = std::dynamic_pointer_cast<CCompound>(childPtr); // получаем child указатель
+		if (!childCompoundPtr)
 		{
 			return false;
 		}
+		if (childCompoundPtr->GetParentPtr().lock()) // если не удаетс€ получить родител€
+		{
+			return false;
+		}
+		// сразу в While!!!
+		std::shared_ptr<CBody> parentPtr = GetParentPtr().lock(); // родитель this
+		while (parentPtr != nullptr) // пока не обойдем всех родителей
+		{
+			if (childPtr == parentPtr) // родител€ в себ€
+			{
+				return false;
+			}
+			auto parentCompoundPtr = std::dynamic_pointer_cast<CCompound>(parentPtr);
+			if (parentCompoundPtr)
+			{
+				parentPtr = parentCompoundPtr->GetParentPtr().lock(); // родитель родител€ и тд, пока не null
+			}
+			else
+			{
+				return false;
+			}
+		}
+		childCompoundPtr->SetParentPtr(shared_from_this()); // —оздает shared_ptr, который владеет экземпл€ром совместно с существующими владельцами shared_ptr
 	}
-	childCompoundPtr->SetParentPtr(shared_from_this()); // —оздает shared_ptr, который владеет экземпл€ром совместно с существующими владельцами shared_ptr
 	m_children.emplace_back(std::move(childPtr));
 	return true;
 }
